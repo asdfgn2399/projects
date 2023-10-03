@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<title>Testing</title>
+
+<h1 id="pageHeader"></h1>
+
+<div id="content">Loading . . .</div>
+
+<script src="../functions/find-prime-numbers.js"></script>
+<script>
+  var numArray = findPrimeNumbers(100)
+  pageHeader.innerHTML = "Prime Numbers up to 100"
+  for (var i = 0; i < numArray.length; i++) {
+    content.innerHTML += "<br>" + numArray[i];
+  }
+</script>
