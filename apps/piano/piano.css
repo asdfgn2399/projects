@@ -1,0 +1,31 @@
+#topOctaveNum,
+#bottomOctaveNum {
+	width: 22px; 
+	text-align: center;
+}
+
+.piano-key {
+	border: 1px solid black;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+	display: inline-block;
+	font-size: 20px;
+	height: 40px;
+	margin: 15px 0;
+	text-align: center;
+	user-select: none;
+	vertical-align: top;
+}
+
+.piano-key.white {
+	padding: 40px 0 60px 0;
+	width: 9%;
+}
+
+.piano-key.black {
+	background-color: black;
+	color: white;
+	padding: 40px 0 20px 0;
+	width: 6%;
+}
+

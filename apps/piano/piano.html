@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<title>Piano</title>
+
+<link rel="stylesheet" href="piano.css">
+
+<h1 id="title">Piano</h1>
+
+<label for="bottomOctave">Bottom Octave <input id="bottomOctaveNum" value="3" readonly><input id="bottomOctave" type="range" min="0" max="9" step="1" value="3"></label>
+<label for="topOctave">Top Octave <input id="topOctaveNum" value="6" readonly><input id="topOctave" type="range" min="0" max="9" step="1" value="6"></label><br>
+<label for="useDefaultBinds"><input id="useDefaultBinds" type="checkbox" checked="true"> Use Default Keybinds?</label>
+
+<div id="pianoContainer">Loading . . .</div>
+
+<script src="https://learn.codeavengers.com/js/tones.js"></script>
+<script src="piano.js"></script>
