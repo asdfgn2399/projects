@@ -1,4 +1,14 @@
 function playNote(note, octave) {
+	if (globalThis.isRecording == true) {
+		if (globalThis.newRecording.notes.length == 0) {
+			globalThis.recordingStart = Date.now()
+		}
+		globalThis.newRecording.notes.push({
+			note: note,
+			octave: octave,
+			timestamp: Date.now() - globalThis.recordingStart
+		})
+	}
 	tones.play(note, octave)
 }
 
@@ -67,6 +77,52 @@ function setBind(ele) {
 	newKey = undefined;
 	renderPiano(bottomOctave.value, topOctave.value)
 	title.innerHTML = "Piano"
+}
+
+function recordButton() {
+	if (globalThis.isRecording) {
+		stopRecording()
+		document.getElementById("recordButton").innerHTML = "Record"
+	} else {
+		recordNotes()
+		document.getElementById("recordButton").innerHTML = "Stop"
+	}
+}
+
+function recordNotes() {
+	globalThis.recordingStart = Date.now()
+	globalThis.newRecording = {
+		notes: []
+	}
+	globalThis.isRecording = true
+}
+
+function stopRecording() {
+	globalThis.isRecording = false
+
+	const filename = prompt("What is the name of this song?") + '.json';
+	const jsonStr = JSON.stringify(globalThis.newRecording);
+	
+	let element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jsonStr));
+	element.setAttribute('download', filename);
+	
+	element.style.display = 'none';
+	document.body.appendChild(element);
+	
+	element.click();
+	
+	document.body.removeChild(element);
+}
+
+async function playSongFromFile(songToBePlayed) {
+
+	var delay = 500 // Amount to delay song in order to play all notes in sequence (millisecs)
+	var initTime = Date.now()
+
+	songToBePlayed.notes.forEach(note => {
+		setTimeout(() => { playNote(note.note, note.octave) }, (delay - (Date.now() - initTime) + note.timestamp))
+	})
 }
 
 window.addEventListener('load', loadPiano)
