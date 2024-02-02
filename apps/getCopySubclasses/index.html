@@ -6,6 +6,10 @@
     margin: 5px;
     width: 500px;
   }
+
+  input:invalid {
+    border: red solid 3px;
+  }
 </style>
 
 <input class="input-bar" id="newClassNameInput" placeholder="New Class Name (i.e. Ranger (Expanded))"><br>
@@ -13,7 +17,7 @@
 <input class="input-bar" id="newClassSourceInput" placeholder="New Class Source (i.e. JBoE)"><br>
 <input class="input-bar" id="classInput" placeholder="Old Class Name (i.e. Ranger)"><br>
 <input class="input-bar" id="sourceInput" placeholder="Old Class Source (i.e. PHB)"><br>
-<div hidden><input id="urlInput" placeholder="(Optional) URL to fetch (i.e )"><i>Only for loading homebrew classes</i><br></div>
+<input class="input-bar"  id="urlInput" placeholder="(Optional) URL to fetch (Only for loading homebrew subclasses)" pattern="https:\/\/.*"><br>
 <div class="input-bar"><button onclick="getSubclasses()">Get</button><button id="copyButton" onclick="copyOutput()">Copy</button><button id="useUAButton" onclick="toggleUA()" hidden>Include UA</button><button id="usePSAButton" onclick="togglePSA()" hidden>Include PSA</button></div>
 <pre id="documentOutput"></pre>
 
