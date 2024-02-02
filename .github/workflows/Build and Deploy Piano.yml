@@ -1,5 +1,5 @@
 # Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Build and Deploy Piano App
+name: Build and Deploy Apps
 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -29,7 +29,7 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./apps/piano/
+          source: ./apps/
           destination: ./_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
