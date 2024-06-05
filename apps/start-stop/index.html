@@ -8,7 +8,6 @@
 
   #textbox {
     font-weight: bold;
-    color: white;
     text-shadow: 5px 5px 10px grey;
     font-size: 45px;
     text-align: center;
@@ -30,16 +29,23 @@
 
   .start {
     background-color: rgb(15, 126, 0);
+    color: white;
   }
 
   .stop {
     background-color: rgb(136, 0, 0);
+    color: white;
+  }
+
+  .ready {
+    background-color: white;
+    color: rgb(155, 155, 155);
   }
 </style>
 
-<div id="container">
+<div id="container" class="ready">
   <div id="textbox">
-    Hi!
+    READY?
   </div>
   <button id="startButton" onclick="runApp()">Go!</button>
 </div>
