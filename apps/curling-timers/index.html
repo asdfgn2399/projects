@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<title>Curling Timers</title>
+
+<style>
+  #container {
+    margin: 0 auto;
+    width: 300px;
+    text-align: center;
+  }
+
+  .timer {
+    font-size: 40px;
+  }
+
+  .button {
+    width: 30%;
+    margin: 5px 1.5%;
+    height: 75px;
+  }
+</style>
+
+<div id="container">
+  <h2>Back Line to Hog Line</h2>
+  <div id="timer-back-hog" class="timer">00:00:00</div>
+
+  <hr>
+
+  <h2>Tee Line to Hog Line</h2>
+  <div id="timer-tee-hog" class="timer">00:00:00</div>
+
+  <hr>
+
+  <h2>Hog Line to Hog Line</h2>
+  <div id="timer-hog-hog" class="timer">00:00:00</div>
+
+  <hr>
+
+  <h2>Hog Line to Stop</h2>
+  <div id="timer-hog-stop" class="timer">00:00:00</div>
+  
+  <hr>
+
+  <button class="button" id="lap">Start</button><button class="button" id="reset">Reset</button><button class="button" id="save">Save</button>
+</div>
+
+<script src="curl.js"></script>
