@@ -2,8 +2,8 @@ function updateTimers() {
   if (timerRunning) {
     console.log("Updated!")
     for (const timer of timers) {
-      if (timers[i].timeStarted !== 0)
-        ms = Date.now() - timers[i].timeStarted
+      if (timer.timeStarted !== 0)
+        ms = Date.now() - timer.timeStarted
         cs = Math.floor((ms / 10) % 100).toLocaleString('en-US', {minimumIntegerDigits: 2, maximumIntegerDigits: 2, useGrouping:false})
         s = Math.floor((ms / 1000) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
         m = Math.floor(ms / 60000).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
@@ -15,7 +15,12 @@ function updateTimers() {
 function lapTimer() {
   console.log("Running!")
   timerRunning = true
-  timeStarted[timerLap] = Date.now()
+  for (let i = 1; i < timers.length + 1; i++) {
+    if (i == timerLap) {
+      timers[i].timeStarted = Date.now()
+    }
+  }
+  
   timerLap += 1
   if (timerLap == 5) {
     timerLap = 0
