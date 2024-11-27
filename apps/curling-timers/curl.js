@@ -1,13 +1,13 @@
 function updateTimers() {
   if (timerRunning) {
     console.log("Updated!")
-    for (i = 0; i < 4; i++) {
-      if (timeStarted[i] !== 0)
-        ms = Date.now() - timeStarted[i]
+    for (const timer of timers) {
+      if (timers[i].timeStarted !== 0)
+        ms = Date.now() - timers[i].timeStarted
         cs = Math.floor((ms / 10) % 100).toLocaleString('en-US', {minimumIntegerDigits: 2, maximumIntegerDigits: 2, useGrouping:false})
         s = Math.floor((ms / 1000) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
         m = Math.floor(ms / 60000).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
-        document.getElementById(timers[i]).innerHTML = m + ':' + s + ':' + cs
+        document.getElementById(timers[i].name).innerHTML = m + ':' + s + ':' + cs
     }
   }
 }
@@ -28,21 +28,28 @@ function resetTimer() {
   console.log("Reset!")
   timerRunning = false
   timerLap = 0
-  timeStarted = [0, 0, 0, 0, 0]
+  for (let i = 0; i < timers.length; i++) {
+    timers[i].timeStarted = 0
+  }
+  
   document.getElementById('lap').innerHTML = lines[0]
   for (const timer of timers) {
-    document.getElementById(timer).innerHTML = '00:00:00'
+    document.getElementById(timer.name).innerHTML = '00:00:00'
   }
 }
 
 function saveTimerData() {
-
+  console.log(JSON.stringify(timers))
 }
 
-timeStarted = [0, 0, 0, 0, 0]
 timerRunning = false
 timerLap = 0
-timers = ["timer-back-hog", "timer-tee-hog", "timer-hog-hog", "timer-hog-stop"]
+timers = [
+  {name: "timer-back-hog", timeStarted: 0},
+  {name: "timer-tee-hog", timeStarted: 0},
+  {name: "timer-hog-hog", timeStarted: 0},
+  {name: "timer-hog-stop", timeStarted: 0}
+]
 lines = ["Start", "Tee Line", "Hog Line", "Hog Line", "Stop"]
 timerData = {}
 
