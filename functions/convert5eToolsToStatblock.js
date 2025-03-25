@@ -2,21 +2,6 @@
 // Without this function, output will contain 5etools tags
 const WARNING = "Load /js/render.js, /js/utils.js, and /js/parser.js from 5e.tools to use this script fully"
 
-var script1 = document.createElement('script');
-script1.type = 'text/javascript';
-script1.src = 'https://asdfgn2399.github.io/5etools-mirror-3/js/render.js';
-document.head.appendChild(script1);
-
-var script2 = document.createElement('script');
-script2.type = 'text/javascript';
-script2.src = 'https://asdfgn2399.github.io/5etools-mirror-3/js/parser.js';
-document.head.appendChild(script2);
-
-var script3 = document.createElement('script');
-script3.type = 'text/javascript';
-script3.src = 'https://asdfgn2399.github.io/5etools-mirror-3/js/utils.js';
-document.head.appendChild(script3);
-
 function convert5eToolsToStatblock(input, legendaryGroup) {
   return {
     name: input.name || "Monster",
@@ -209,11 +194,11 @@ function extractSense(senses, type) {
 }
 
 function convertTrait(trait) {
-  return { name: trait.name, desc: (function() { try { Renderer.stripTags(`${trait.entries.join(" ")}`) } catch { console.warn(WARNING); console.error(error); trait.entries.join(" ") }})() };
+  return { name: trait.name, desc: (function() { try { return Renderer.stripTags(`${trait.entries.join(" ")}`) } catch (error) { console.warn(WARNING); console.error(error); return trait.entries.join(" ") }})() };
 }
 
 function convertAction(action) {
-  return { name: action.name, desc: (function() { try { Renderer.stripTags(`${action.entries.join(" ")}`) } catch { console.warn(WARNING); console.error(error); action.entries.join(" ") }})() };
+  return { name: action.name, desc: (function() { try { return Renderer.stripTags(`${action.entries.join(" ")}`) } catch (error) { console.warn(WARNING); console.error(error); return action.entries.join(" ") }})() };
 }
 
 function checkForSpellcasting(spellcasting, displayAs) {
@@ -282,7 +267,7 @@ function findArmorName(ac) {
 }
 
 function convertLairRegionalActions(lairActions, actionType) {
-  if (actionType === "actions") return lairActions[1].items.map((action) => ({ name: lairActions[1].items.indexOf(action), desc: (function() { try { Renderer.stripTags((action.name ? "**" + action.name + ":** " + action.entry : action)) } catch { console.warn(WARNING); console.error(error); (action.name ? "**" + action.name + ":** " + action.entry : action) }})()}))
+  if (actionType === "actions") return lairActions[1].items.map((action) => ({ name: lairActions[1].items.indexOf(action), desc: (function() { try { return Renderer.stripTags((action.name ? "**" + action.name + ":** " + action.entry : action)) } catch (error) { console.warn(WARNING); console.error(error); return (action.name ? "**" + action.name + ":** " + action.entry : action) }})()}))
   else if (actionType === "beginning") return lairActions[0];
   else if (actionType === "ending") return lairActions[2] || "";
 }
