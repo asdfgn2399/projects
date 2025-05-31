@@ -1,1 +1,23 @@
 <!DOCTYPE html>
+<head>
+  <title>STOP! What are you up to!</title>
+</head>
+
+<body>
+  <h1>STOP! What do you think you're doing!</h1>
+
+  <div id="button">Try Me!</div>
+
+  <script>
+    function nextURL() {
+      console.log("nextURL Run!")
+      globalThis.nextURL = urlParams.has("url") ? Number(urlParams.get("url").split("#")[0]) : "";
+
+      window.location = globalThis.nextURL
+    }
+
+    document.getElementByID("button).onclick = () => {
+      nextURL()
+    }
+  </script>
+</body>
