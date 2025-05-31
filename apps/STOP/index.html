@@ -3,7 +3,7 @@
   <title>STOP! What are you up to!</title>
 
   <style>
-    button {
+    #button {
       background-color: #ddd;
       width: 100px;
       height: 100px;
@@ -22,6 +22,9 @@
   <script>
     function nextURL() {
       console.log("nextURL Run!")
+
+      const queryString = window.location.search;
+	    const urlParams = new URLSearchParams(queryString);
       globalThis.nextURL = urlParams.has("url") ? Number(urlParams.get("url").split("#")[0]) : "";
 
       window.location = globalThis.nextURL
