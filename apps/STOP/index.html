@@ -3,8 +3,24 @@
   <title>STOP! What are you up to!</title>
 
   <style>
+    #background {
+      width: 100%;
+      height: 100%;
+      background-color: #222;
+    }
+
+    h1, h2, h3 {
+      color: #fff;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 35%;
+    }
+	  
     #button {
-      background-color: #ddd;
+      background-color: #222;
       width: 100px;
       height: 100px;
       position: fixed;
@@ -15,9 +31,13 @@
 </head>
 
 <body>
-  <h1>STOP! What do you think you're doing!</h1>
+  <div id="background">
+    <h1>STOP!</h1>
+    <h2>WHAT DO YOU THINK YOU'RE DOING!</h2>
+    <h3>I'M WATCHING YOU</h3>
+  </div>
 
-  <div id="button">Try Me!</div>
+  <div id="button"></div>
 
   <script>
     function nextURL() {
@@ -25,7 +45,7 @@
 
       const queryString = window.location.search;
 	    const urlParams = new URLSearchParams(queryString);
-      globalThis.nextURL = urlParams.has("url") ? Number(urlParams.get("url").split("#")[0]) : "";
+      globalThis.nextURL = urlParams.has("url") ? urlParams.get("url").split("#")[0] : "";
 
       window.location = globalThis.nextURL
     }
