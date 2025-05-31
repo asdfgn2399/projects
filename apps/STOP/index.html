@@ -43,11 +43,14 @@
   <div id="button"></div>
 
   <script>
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    window.location.search = ""
+    
     function nextURL() {
       console.log("nextURL Run!")
 
-      const queryString = window.location.search;
-	    const urlParams = new URLSearchParams(queryString);
       globalThis.nextURL = urlParams.has("url") ? urlParams.get("url").split("#")[0] : "";
 
       window.location = globalThis.nextURL
