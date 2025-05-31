@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <head>
   <title>STOP! What are you up to!</title>
+
+  <style>
+    button {
+      background-color: #ddd;
+      width: 100px;
+      height: 100px;
+      position: fixed;
+      bottom: 0;
+      right: 0;
+    }
+  </style>
 </head>
 
 <body>
@@ -16,7 +27,7 @@
       window.location = globalThis.nextURL
     }
 
-    document.getElementByID("button").onclick = () => {
+    document.getElementById("button").onclick = () => {
       nextURL()
     }
   </script>
