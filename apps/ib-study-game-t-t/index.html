@@ -232,7 +232,7 @@
 
 };
 
-    let subjectStats = {
+    let subjectStats = JSON.parse(localStorage.getItem("subjectStats")) || {
       Math: { correct: 0, incorrect: 0 },
       Chemistry: { correct: 0, incorrect: 0 },
       Physics: { correct: 0, incorrect: 0 },
@@ -286,6 +286,7 @@ function handleTimeout() {
   document.getElementById("result").style.color = "orange";
   document.getElementById("result").innerText = `⏰ Time's up! ${q.explanation}`;
   subjectStats[q.subject]["incorrect"] += 1;
+  localStorage.setItem("subjectStats", JSON.stringify(subjectStats))
   streak = 0;
 
   // Disable input and show next button
@@ -325,6 +326,7 @@ function handleTimeout() {
       // Show the answer/explanation first before confirmation alert
       if (isCorrect) {
         subjectStats[q.subject]["correct"] += 1;
+        localStorage.setItem("subjectStats", JSON.stringify(subjectStats))
         score += 10;
         streak += 1;
         gaugeProgress += (streak >= 3) ? 5 : 3;
@@ -346,6 +348,7 @@ function handleTimeout() {
           isCorrect = true;
           // Update stats and UI accordingly:
           subjectStats[q.subject]["correct"] += 1;
+          localStorage.setItem("subjectStats", JSON.stringify(subjectStats))
           score += 10;
           streak += 1;
           gaugeProgress += (streak >= 3) ? 5 : 3;
@@ -373,6 +376,7 @@ function handleTimeout() {
         }
       } else {
         subjectStats[subject]["incorrect"] += 1;
+        localStorage.setItem("subjectStats", JSON.stringify(subjectStats))
         streak = 0;
         // Disable further answers for the current question
         document.getElementById("answerInput").disabled = true;
