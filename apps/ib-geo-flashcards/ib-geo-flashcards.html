@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Geography Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --card-bg: #fffdf7;
+    --accent: #c0392b;
+    --accent2: #2c7a4b;
+    --gold: #b8860b;
+    --shadow: rgba(26,26,46,0.15);
+    --muted: #6b6b7a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Subtle dot-grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(26,26,46,0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    width: 100%;
+    max-width: 900px;
+    padding: 32px 24px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  /* Unit Filter */
+  .filter-bar {
+    width: 100%;
+    max-width: 900px;
+    padding: 20px 24px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .filter-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--ink);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    color: var(--ink);
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .chip.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .chip:hover:not(.active) {
+    background: rgba(26,26,46,0.06);
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    width: 100%;
+    max-width: 900px;
+    padding: 18px 24px 0;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-num.correct { color: var(--accent2); }
+  .stat-num.incorrect { color: var(--accent); }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(26,26,46,0.15);
+  }
+
+  .progress-wrap {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: rgba(26,26,46,0.12);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Main card area */
+  .card-area {
+    width: 100%;
+    max-width: 900px;
+    padding: 28px 24px;
+    position: relative;
+    z-index: 1;
+    perspective: 1200px;
+  }
+
+  /* Mode badge */
+  .mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+
+  .mode-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* Flashcard */
+  .card-wrapper {
+    width: 100%;
+    height: 340px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  @media (max-width: 480px) {
+    .card-wrapper { height: 280px; }
+  }
+
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px var(--shadow), 0 1px 4px rgba(26,26,46,0.08);
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Decorative top stripe */
+  .card-face::before {
+    content: '';
+    display: block;
+    height: 5px;
+    border-radius: 16px 16px 0 0;
+    flex-shrink: 0;
+  }
+
+  .card-face.front::before { background: var(--accent); }
+  .card-face.back::before { background: var(--accent2); }
+
+  .card-face.back {
+    transform: rotateY(180deg);
+  }
+
+  .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 40px;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .card-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .card-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .card-subtext {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 580px;
+    line-height: 1.6;
+  }
+
+  .card-definition {
+    font-size: clamp(13px, 2vw, 15px);
+    color: var(--ink);
+    max-width: 600px;
+    line-height: 1.65;
+    text-align: center;
+  }
+
+  .card-footer {
+    padding: 14px 24px;
+    border-top: 1px solid rgba(26,26,46,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-unit-tag {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .flip-hint {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Controls */
+  .controls {
+    width: 100%;
+    max-width: 900px;
+    padding: 0 24px 16px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .judgement-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 100px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .btn-got-it {
+    background: var(--accent2);
+    color: white;
+    flex: 1;
+    max-width: 200px;
+    justify-content: center;
+  }
+
+  .btn-got-it:hover { background: #25693f; transform: translateY(-1px); }
+
+  .btn-missed {
+    background: var(--accent);
+    color: white;
+    flex: 1;
+    max-width: 200px;
+    justify-content: center;
+  }
+
+  .btn-missed:hover { background: #a93226; transform: translateY(-1px); }
+
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .btn-nav {
+    background: transparent;
+    border: 1.5px solid rgba(26,26,46,0.2);
+    color: var(--ink);
+    padding: 10px 22px;
+  }
+
+  .btn-nav:hover { background: rgba(26,26,46,0.05); }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .btn-primary:hover { background: #2d2d4a; transform: translateY(-1px); }
+
+  /* End screen */
+  .end-screen {
+    display: none;
+    width: 100%;
+    max-width: 900px;
+    padding: 0 24px 40px;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .end-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 48px 40px;
+    box-shadow: 0 4px 24px var(--shadow);
+    width: 100%;
+  }
+
+  .end-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .end-subtitle {
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  .score-display {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-bottom: 32px;
+  }
+
+  .score-block { text-align: center; }
+
+  .score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .score-big.g { color: var(--accent2); }
+  .score-big.r { color: var(--accent); }
+
+  .score-lbl {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .pct-bar {
+    height: 10px;
+    background: rgba(26,26,46,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    max-width: 300px;
+  }
+
+  .pct-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent2), #52c97a);
+    transition: width 1s ease;
+  }
+
+  /* Screen state management */
+  .game-ui { display: contents; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">IB Geography · Exam Prep</div>
+  <h1>Flash<span>cards</span></h1>
+</header>
+
+<!-- Unit Filter -->
+<div class="filter-bar">
+  <div class="filter-label">Filter by Unit</div>
+  <div class="filter-chips" id="filterChips">
+    <button class="chip active" data-unit="All">All Units</button>
+    <button class="chip" data-unit="Changing Population">Changing Population</button>
+    <button class="chip" data-unit="Global Climate">Global Climate</button>
+    <button class="chip" data-unit="Global Resource Consumption">Resource Consumption</button>
+    <button class="chip" data-unit="Urban Environments">Urban Environments</button>
+    <button class="chip" data-unit="Sport, Leisure & Tourism">Sport, Leisure & Tourism</button>
+    <button class="chip" data-unit="Power, Places & Networks">Power, Places & Networks</button>
+  </div>
+</div>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num" id="totalStat">0</div>
+    <div class="stat-label">Total</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <div class="stat-num correct" id="correctStat">0</div>
+    <div class="stat-label">Got It</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <div class="stat-num incorrect" id="incorrectStat">0</div>
+    <div class="stat-label">Missed</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">Card 0 of 0</div>
+  </div>
+</div>
+
+<!-- Card Area -->
+<div class="card-area" id="gameArea">
+  <div class="mode-badge">
+    <div class="mode-dot"></div>
+    <span id="modeBadge">Term → Definition</span>
+  </div>
+
+  <div class="card-wrapper" id="cardWrapper" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <!-- Front -->
+      <div class="card-face front" id="cardFront">
+        <div class="card-content">
+          <div class="card-eyebrow" id="frontEyebrow">What is this term?</div>
+          <div class="card-text" id="frontText">Loading...</div>
+          <div class="card-subtext" id="frontSub"></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-unit-tag" id="frontUnit"></span>
+          <span class="flip-hint">↩ Click to flip</span>
+        </div>
+      </div>
+      <!-- Back -->
+      <div class="card-face back" id="cardBack">
+        <div class="card-content">
+          <div class="card-eyebrow" id="backEyebrow">Definition</div>
+          <div class="card-text" id="backTitle" style="font-size:16px; color: var(--accent2);"></div>
+          <div class="card-definition" id="backText"></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-unit-tag" id="backUnit"></span>
+          <span class="flip-hint">↩ Click to flip back</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls" id="controls">
+  <div class="judgement-row" id="judgementRow">
+    <button class="btn btn-missed" id="btnMissed" onclick="judge(false)" disabled>✗ Missed It</button>
+    <button class="btn btn-got-it" id="btnGotIt" onclick="judge(true)" disabled>✓ Got It</button>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-nav" onclick="prevCard()">← Prev</button>
+    <button class="btn btn-nav" onclick="skipCard()">Skip →</button>
+    <button class="btn btn-primary" onclick="resetDeck()">↺ Reshuffle</button>
+  </div>
+</div>
+
+<!-- End Screen -->
+<div class="end-screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title">Round Complete!</div>
+    <div class="end-subtitle">Here's how you did this session</div>
+    <div class="score-display">
+      <div class="score-block">
+        <div class="score-big g" id="finalCorrect">0</div>
+        <div class="score-lbl">Got It</div>
+      </div>
+      <div class="score-block">
+        <div class="score-big r" id="finalMissed">0</div>
+        <div class="score-lbl">Missed</div>
+      </div>
+    </div>
+    <div class="pct-bar"><div class="pct-fill" id="pctFill" style="width:0%"></div></div>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="resetDeck()">↺ Shuffle All Again</button>
+      <button class="btn btn-nav" onclick="reviewMissed()" id="reviewBtn">Study Missed Cards</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// VOCABULARY DATA
+// Removed: Freshwater, Extreme Environments units
+// Removed: specific named case studies as terms
+// Added: Urban Environments, Sport Leisure & Tourism
+// ─────────────────────────────────────────────
+const VOCAB = [
+
+  // ══════════════════════════════
+  // CHANGING POPULATION
+  // ══════════════════════════════
+  { term: "Age dependency ratio", def: "The sum of the young population (under age 15) and elderly population (age 65 and over) relative to the working-age population (ages 15 to 64).", unit: "Changing Population" },
+  { term: "Boserup's theory", def: "The theory that population change drives the intensity of agricultural production — that necessity is the mother of invention — countering Malthus by arguing population growth spurs innovation rather than causing collapse.", unit: "Changing Population" },
+  { term: "Demographic dividend", def: "The accelerated economic growth that may result from a decline in birth and death rates, creating a window of opportunity as the working-age population grows relative to dependents.", unit: "Changing Population" },
+  { term: "Demographic transition", def: "The changes in birth rates, death rates, and overall population growth that occur as a society undergoes social and economic development.", unit: "Changing Population" },
+  { term: "Diasporas", def: "A scattered population whose origin lies in a separate geographic locale; people who identify with a geographic location but now reside elsewhere.", unit: "Changing Population" },
+  { term: "Economic migrant", def: "A person who leaves their home country purely for economic reasons in order to seek material improvements in their livelihood.", unit: "Changing Population" },
+  { term: "Fertility rate", def: "The total number of children that would be born to each woman if she were to live to the end of her childbearing years, given current age-specific fertility rates.", unit: "Changing Population" },
+  { term: "Forced migrant", def: "A person subject to a migratory movement in which an element of coercion exists, including threats to life from natural or human-made causes.", unit: "Changing Population" },
+  { term: "Gender equality", def: "When people of all genders have equal rights, responsibilities, and opportunities.", unit: "Changing Population" },
+  { term: "Gender Inequality Index", def: "A UN measure of disparity between men and women across reproductive health, empowerment, and economic status.", unit: "Changing Population" },
+  { term: "Gender roles", def: "The roles or behaviours considered appropriate to a particular gender as determined by prevailing cultural norms.", unit: "Changing Population" },
+  { term: "Healthy life expectancy (HALE) at birth", def: "The average number of years a person can expect to live in 'full health', accounting for time spent in less than full health due to disease or injury.", unit: "Changing Population" },
+  { term: "Human Development Index (HDI)", def: "A composite UN measure combining economic and social factors — income, education, and life expectancy — to assess a country's level of development.", unit: "Changing Population" },
+  { term: "Infant mortality rate", def: "The number of infants dying before reaching one year of age per 1,000 live births in a given year.", unit: "Changing Population" },
+  { term: "Internal migration", def: "The movement of people within the same country from one geographical area to another, without crossing international boundaries.", unit: "Changing Population" },
+  { term: "Internally displaced person (IDP)", def: "A person forced to flee their home due to armed conflict, violence, human rights violations, or disasters, who has not crossed an internationally recognised state border.", unit: "Changing Population" },
+  { term: "Life expectancy at birth", def: "The number of years a newborn infant would live if prevailing patterns of mortality at the time of birth remained the same throughout their life.", unit: "Changing Population" },
+  { term: "Malthusianism", def: "The idea that population growth is potentially exponential while growth of food supply is linear, eventually triggering a population die-off.", unit: "Changing Population" },
+  { term: "Maternal mortality ratio", def: "The number of women who die from pregnancy-related causes while pregnant or within 42 days of pregnancy termination per 100,000 live births.", unit: "Changing Population" },
+  { term: "Median age", def: "The age that divides a population into two numerically equal groups — half younger, half older. A single index summarising a population's age distribution.", unit: "Changing Population" },
+  { term: "Migration controls", def: "Measures and policies implemented by a government to regulate the flow of people across its borders, including visa requirements, quotas, and border security.", unit: "Changing Population" },
+  { term: "Neo-Malthusianism", def: "The advocacy of population planning to ensure resources and environmental integrity for current and future generations and other species.", unit: "Changing Population" },
+  { term: "Population ageing", def: "The process by which older individuals become a proportionally larger share of the total population.", unit: "Changing Population" },
+  { term: "Population density", def: "The number of people living in a given area, usually expressed as people per square kilometre.", unit: "Changing Population" },
+  { term: "Population distribution", def: "The uneven spread of people across Earth, with certain areas being much more densely populated due to physical and human geographic factors.", unit: "Changing Population" },
+  { term: "Population pyramid", def: "A diagram showing the distribution of a population by age groups and sex, depicting each group's percentage or number of the total population.", unit: "Changing Population" },
+  { term: "Pro-natalist", def: "A population policy which aims to encourage more births through the use of incentives.", unit: "Changing Population" },
+  { term: "Rate of Natural Increase", def: "The birth rate minus the death rate, expressed as a percentage, representing the estimated rate of population growth without regard for migration.", unit: "Changing Population" },
+  { term: "Refugee", def: "A person with a well-founded fear of persecution based on race, religion, nationality, political opinion, or membership of a particular social group, who is outside their country of nationality.", unit: "Changing Population" },
+  { term: "Remittances", def: "The transfer of money and/or goods by foreign workers back to their home country.", unit: "Changing Population" },
+  { term: "Sex ratio", def: "The number of males per 100 females in the population.", unit: "Changing Population" },
+  { term: "Total fertility rate", def: "The number of children that would be born to a woman if she were to live to the end of her childbearing years, bearing children according to age-specific fertility rates of a given year.", unit: "Changing Population" },
+  { term: "Voluntary migration", def: "The movement of individuals or groups who choose to relocate, typically motivated by personal factors, economic opportunities, or improved quality of life.", unit: "Changing Population" },
+  { term: "Wasting", def: "Defined as low weight-for-height; often indicates recent and severe weight loss. Associated with a higher risk of death in children if untreated.", unit: "Changing Population" },
+
+  // ══════════════════════════════
+  // GLOBAL CLIMATE (HAZARDS & RISKS)
+  // ══════════════════════════════
+  { term: "Adaptation", def: "Anticipating the adverse effects of climate change and taking action to prevent or minimise the damage they can cause, or to take advantage of opportunities that may arise.", unit: "Global Climate" },
+  { term: "Anthropocene", def: "A proposed geological epoch dating from the commencement of significant human impact on Earth's geology and ecosystems, including anthropogenic climate change.", unit: "Global Climate" },
+  { term: "Carbon cycle", def: "The series of processes by which carbon compounds are interconverted in the environment, involving photosynthesis, respiration, decay of organisms, and burning of fossil fuels.", unit: "Global Climate" },
+  { term: "Carbon emissions offsetting", def: "A mitigation strategy that compensates for carbon emissions by funding an equivalent carbon saving elsewhere, typically through investing in projects that reduce or remove CO₂.", unit: "Global Climate" },
+  { term: "Carbon footprint", def: "The total amount of greenhouse gases — including carbon dioxide and methane — generated by a person's or organization's actions.", unit: "Global Climate" },
+  { term: "Carbon sequestration", def: "The process of capturing and storing atmospheric carbon dioxide to prevent it from contributing to the greenhouse effect and global warming.", unit: "Global Climate" },
+  { term: "Carbon trading", def: "A market-based approach to mitigating climate change by putting a price on carbon to create financial incentives for businesses to reduce greenhouse gas emissions.", unit: "Global Climate" },
+  { term: "Climate", def: "The long-term weather pattern in an area, typically averaged over 30 years.", unit: "Global Climate" },
+  { term: "Climate modelling", def: "The use of mathematical and computer-based techniques to simulate and predict long-term patterns and trends in atmospheric conditions, temperature, precipitation, and other climate variables.", unit: "Global Climate" },
+  { term: "Disease burden", def: "The impact of a health problem on a given population, measured using indicators such as mortality, morbidity, or financial cost.", unit: "Global Climate" },
+  { term: "Ecosystem", def: "All organisms and the physical environment with which they interact, linked through nutrient cycles and energy flows, controlled by both external and internal factors.", unit: "Global Climate" },
+  { term: "Enhanced greenhouse effect", def: "The additional warming of the Earth caused by increasing levels of greenhouse gases in the atmosphere as a result of human activities.", unit: "Global Climate" },
+  { term: "Extreme weather event", def: "An occurrence of a weather or climate variable that significantly deviates from historical norms, reaching values at the extreme ends of what has previously been recorded.", unit: "Global Climate" },
+  { term: "Feedback loops", def: "Occur when the outputs of a system circulate back and become inputs in a series of cause-and-effect cycles.", unit: "Global Climate" },
+  { term: "Geoengineering", def: "The deliberate large-scale intervention in Earth's natural systems to counteract climate change.", unit: "Global Climate" },
+  { term: "Greenhouse gas", def: "Gases that trap heat in the atmosphere, contributing to the greenhouse effect.", unit: "Global Climate" },
+  { term: "Methane", def: "A potent greenhouse gas with a Global Warming Potential 86 times greater than CO₂ over 20 years and 34 times greater over 100 years.", unit: "Global Climate" },
+  { term: "Mitigation", def: "Action taken to reduce the severity, seriousness, or painfulness of something — in climate contexts, reducing greenhouse gas emissions to limit warming.", unit: "Global Climate" },
+  { term: "Natural greenhouse effect", def: "The process by which greenhouse gases in Earth's atmosphere trap heat, maintaining the planet's temperature at a level suitable for life.", unit: "Global Climate" },
+  { term: "Negative feedback", def: "When a system acts by lessening the effect of the original change and ultimately reversing it.", unit: "Global Climate" },
+  { term: "Positive feedback", def: "Occurs within a system where a change causes a snowball effect, continuing or even accelerating the original change.", unit: "Global Climate" },
+  { term: "Resilience", def: "The sustained ability to use available resources to respond to, withstand, and recover from adverse situations.", unit: "Global Climate" },
+  { term: "Risk", def: "Both the possibility of danger and its potential consequences — encompassing the source of risk and the target exposed to it.", unit: "Global Climate" },
+  { term: "Terrestrial albedo changes", def: "Changes in the reflectivity of Earth's surface. Light-coloured surfaces (ice, snow) reflect more solar energy; dark surfaces (forests, oceans) absorb more.", unit: "Global Climate" },
+  { term: "Vulnerability", def: "The conditions determined by physical, social, economic, and environmental factors that increase the susceptibility of an individual, community, or system to the impacts of hazards.", unit: "Global Climate" },
+  { term: "Vector-borne diseases", def: "Human illnesses caused by parasites, viruses, and bacteria transmitted by vectors — living organisms such as mosquitoes that carry pathogens between hosts.", unit: "Global Climate" },
+  { term: "Water-borne diseases", def: "Diseases linked to contaminated water and poor sanitation, including cholera, dysentery, hepatitis A, typhoid, and polio.", unit: "Global Climate" },
+
+  // ══════════════════════════════
+  // GLOBAL RESOURCE CONSUMPTION
+  // ══════════════════════════════
+  { term: "Afforestation", def: "The deliberate planting of trees on land that previously had no forest cover, typically to mitigate environmental issues.", unit: "Global Resource Consumption" },
+  { term: "Agribusiness", def: "The business sector encompassing farming and farming-related commercial activities, including production, processing, and distribution.", unit: "Global Resource Consumption" },
+  { term: "Biome", def: "A biogeographical unit consisting of a biological community that formed in response to the physical environment and shared regional climate. Broader than habitat; can span multiple continents.", unit: "Global Resource Consumption" },
+  { term: "Circular economy", def: "A model of production and consumption involving sharing, leasing, reusing, repairing, refurbishing, and recycling existing materials and products as long as possible.", unit: "Global Resource Consumption" },
+  { term: "Crop yields", def: "A measurement of the amount of a crop grown, or product such as wool, meat, or milk produced, per unit area of land.", unit: "Global Resource Consumption" },
+  { term: "Daily per capita calorie supply", def: "The total calorie supply available for human consumption divided by the total population.", unit: "Global Resource Consumption" },
+  { term: "Deforestation", def: "The removal of a forest or stand of trees from land that is then converted to non-forest use.", unit: "Global Resource Consumption" },
+  { term: "Desertification", def: "Land degradation in arid, semi-arid, and dry sub-humid areas resulting from climatic variations and human activities, including declining soil, vegetation, water resources, and agricultural productivity.", unit: "Global Resource Consumption" },
+  { term: "Ecological footprint", def: "The theoretical measurement of the amount of land and water a population requires to produce the resources it consumes and to absorb its waste.", unit: "Global Resource Consumption" },
+  { term: "Energy efficiency ratio", def: "The ratio of energy out to energy in for an agricultural system — how much food energy is produced per unit of energy consumed.", unit: "Global Resource Consumption" },
+  { term: "Energy pathway", def: "The flows of energy from producer to consumer, including oil pipelines, gas pipelines, electricity power lines, and sea routes for tankers.", unit: "Global Resource Consumption" },
+  { term: "Energy policy", def: "The strategies and decisions made by a government or organization to manage energy production, distribution, and consumption to ensure a secure, sustainable, and affordable energy supply.", unit: "Global Resource Consumption" },
+  { term: "Energy security", def: "A country's ability to secure all its energy needs.", unit: "Global Resource Consumption" },
+  { term: "Fairtrade", def: "A certification system ensuring standards are met in production and supply of products, guaranteeing workers' rights, safer conditions, and fairer pay.", unit: "Global Resource Consumption" },
+  { term: "Famine", def: "Declared when at least 20% of households face extreme food shortages, acute malnutrition exceeds 30%, and the death rate exceeds two persons per day per 10,000 persons.", unit: "Global Resource Consumption" },
+  { term: "Food acquisition", def: "The process of obtaining food through growing, raising, hunting, or purchasing, involving cultivation, harvesting, storage, transportation, and processing.", unit: "Global Resource Consumption" },
+  { term: "Food availability", def: "The situation where food is made available for consumption at local levels without difficulty — the production and supply of food varieties.", unit: "Global Resource Consumption" },
+  { term: "Food insecurity", def: "A lack of consistent access to enough food for every person in a household to live an active, healthy life.", unit: "Global Resource Consumption" },
+  { term: "Food security", def: "Exists when all people, at all times, have access to sufficient, safe, and nutritious food to meet their dietary needs and food preferences for an active and healthy life.", unit: "Global Resource Consumption" },
+  { term: "Food waste", def: "Food that is fit for consumption but is consciously discarded at the retail or consumption phases.", unit: "Global Resource Consumption" },
+  { term: "Fossil fuel", def: "Hydrocarbons — primarily coal, fuel oil, or natural gas — formed from the remains of dead plants and animals.", unit: "Global Resource Consumption" },
+  { term: "Genetically modified organisms (GMOs)", def: "Animals, plants, or microbes whose DNA has been altered using genetic engineering techniques.", unit: "Global Resource Consumption" },
+  { term: "Global Hunger Index", def: "A tool measuring hunger at global, regional, and national levels using four indicators: undernourishment, child stunting, child wasting, and child mortality.", unit: "Global Resource Consumption" },
+  { term: "Intensive agriculture", def: "Agriculture with higher levels of input and output per unit of land area, characterised by a low fallow ratio, higher use of capital and labour, and higher crop yields.", unit: "Global Resource Consumption" },
+  { term: "In vitro meat", def: "Meat produced by injecting muscle tissue from an animal into a cell culture, allowing cells to grow outside the animal's body. Also called cultured or synthetic meat.", unit: "Global Resource Consumption" },
+  { term: "Irrigation", def: "Applying controlled amounts of water to land to grow crops, using sources including groundwater, surface water, and treated wastewater.", unit: "Global Resource Consumption" },
+  { term: "Malnutrition", def: "Deficiencies, excesses, or imbalances in nutrient intake, including both undernutrition and overweight/obesity, as well as diet-related noncommunicable diseases.", unit: "Global Resource Consumption" },
+  { term: "Natural resources", def: "Stocks of materials that exist in the natural environment that are both scarce and economically useful in production or consumption.", unit: "Global Resource Consumption" },
+  { term: "Nexus", def: "The interrelationship, interdependence, and interactions between water, food, and energy.", unit: "Global Resource Consumption" },
+  { term: "Nitrate fertilizers", def: "Fertilizers with high solubility whose end-product nitrate ion is easily leached due to its high mobility with excess irrigation water.", unit: "Global Resource Consumption" },
+  { term: "Nutrition transition", def: "Shifts in diets, physical activity, and causes of disease that accompany economic development, urbanisation, and demography — commonly describing a move toward Western diets high in fats, sugars, and processed foods.", unit: "Global Resource Consumption" },
+  { term: "Primary production", def: "The process where primary producers (green plants) make organic compounds from carbon dioxide and water using solar energy through photosynthesis.", unit: "Global Resource Consumption" },
+  { term: "Recycling", def: "The processing of waste so that materials can be reused.", unit: "Global Resource Consumption" },
+  { term: "Resource development", def: "The effective and efficient development of natural resources without harming the environment or human existence.", unit: "Global Resource Consumption" },
+  { term: "Resource nationalism", def: "A government's effort to gain greater control or value from its natural resources, ranging from expropriation to higher taxation or tougher regulation.", unit: "Global Resource Consumption" },
+  { term: "Resource stewardship", def: "An approach to resource management which views humans as caretakers of the natural world.", unit: "Global Resource Consumption" },
+  { term: "Soil conservation", def: "The practice of implementing strategies and techniques to protect and manage soil resources to prevent erosion, degradation, and loss.", unit: "Global Resource Consumption" },
+  { term: "Soil erosion", def: "The wearing away of topsoil by physical forces of water and wind, or through farming activities such as tillage.", unit: "Global Resource Consumption" },
+  { term: "Species diversity", def: "A measure of the variety of species — both plants and animals — present in a particular ecosystem.", unit: "Global Resource Consumption" },
+  { term: "Stunting", def: "Defined as low height-for-age, resulting from chronic or recurrent undernutrition. Prevents children from reaching their physical and cognitive potential.", unit: "Global Resource Consumption" },
+  { term: "Vertical farming", def: "Farming on vertically stacked layers, often integrated into buildings or warehouses, producing significantly more food on the same or smaller land area.", unit: "Global Resource Consumption" },
+  { term: "Virtual water", def: "Also called 'embedded water' or 'indirect water' — the water hidden in the products, services, and processes people use every day, consumed throughout the value chain.", unit: "Global Resource Consumption" },
+
+  // ══════════════════════════════
+  // URBAN ENVIRONMENTS
+  // ══════════════════════════════
+  { term: "Urbanization", def: "The process by which an increasing percentage of a country's population comes to live in towns and cities, involving both rural–urban migration and natural increase.", unit: "Urban Environments" },
+  { term: "Megacity", def: "An urban area with a population of at least ten million people.", unit: "Urban Environments" },
+  { term: "Urban heat island", def: "The phenomenon where urban areas are significantly warmer than surrounding rural areas due to human activity, dark surfaces absorbing heat, reduced vegetation, and waste heat from buildings and vehicles.", unit: "Urban Environments" },
+  { term: "Gentrification", def: "The process by which higher-income residents move into a lower-income urban area, often displacing existing residents as property values and rents rise.", unit: "Urban Environments" },
+  { term: "Urban sprawl", def: "The uncontrolled expansion of urban areas into surrounding rural land, typically characterized by low-density, car-dependent development.", unit: "Urban Environments" },
+  { term: "Informal settlement", def: "A residential area developed without legal approval, official planning, or basic infrastructure, often lacking access to clean water, sanitation, and secure tenure. Also called slums or squatter settlements.", unit: "Urban Environments" },
+  { term: "Sustainable urban development", def: "Development that meets the needs of the present urban population without compromising the ability of future generations to meet their own needs, balancing economic, social, and environmental objectives.", unit: "Urban Environments" },
+  { term: "Urban planning", def: "The technical and political process concerned with the development and use of land, protection and use of the environment, public welfare, and design of the urban environment.", unit: "Urban Environments" },
+  { term: "Zoning", def: "A regulatory tool used by local governments to control how land in specific areas can be used, separating incompatible land uses and directing development.", unit: "Urban Environments" },
+  { term: "Green space", def: "Publicly accessible areas of open land within or around urban areas, including parks, gardens, and woodland, that provide environmental and social benefits.", unit: "Urban Environments" },
+  { term: "Brownfield site", def: "Previously developed or industrial land that may be contaminated and has fallen out of use, but is available for redevelopment.", unit: "Urban Environments" },
+  { term: "Greenfield site", def: "Previously undeveloped land on the urban fringe, often agricultural, proposed or used for new development.", unit: "Urban Environments" },
+  { term: "Counter-urbanization", def: "The movement of people from urban areas to smaller towns or rural areas, often driven by high urban costs, traffic, and the desire for a better quality of life.", unit: "Urban Environments" },
+  { term: "Rural–urban migration", def: "The movement of people from rural areas to urban areas, typically driven by push factors in rural areas (e.g. lack of employment) and pull factors in cities (e.g. economic opportunities).", unit: "Urban Environments" },
+  { term: "Urban primacy", def: "A situation where a country's largest city — the primate city — dominates the urban system, containing a disproportionately large share of the national population and economic activity.", unit: "Urban Environments" },
+  { term: "Primate city", def: "The largest city in a country, which is disproportionately larger than any other city and dominates the country economically, culturally, and politically.", unit: "Urban Environments" },
+  { term: "Urban morphology", def: "The study of the form, structure, and layout of urban areas, including the arrangement of streets, buildings, and land uses.", unit: "Urban Environments" },
+  { term: "Central Business District (CBD)", def: "The commercial and business core of an urban area, characterized by high land values, high-rise buildings, retail, offices, and daytime population peaks.", unit: "Urban Environments" },
+  { term: "Urban regeneration", def: "The process of improving run-down urban areas through investment in infrastructure, housing, employment, and public spaces to revive economic and social activity.", unit: "Urban Environments" },
+  { term: "Social segregation", def: "The spatial separation of different social groups within a city, based on income, ethnicity, religion, or other characteristics.", unit: "Urban Environments" },
+  { term: "Land use", def: "The human use of land for various purposes including residential, commercial, industrial, recreational, and agricultural activities.", unit: "Urban Environments" },
+  { term: "Smart city", def: "An urban area that uses digital technology and data collection to improve the efficiency of services and meet residents' needs while reducing resource use.", unit: "Urban Environments" },
+  { term: "Urban hierarchy", def: "The classification of settlements by size and function, from hamlets and villages at the base to megacities at the top.", unit: "Urban Environments" },
+  { term: "Squatter settlement", def: "An informal area of housing built on land to which the occupants have no legal rights, often lacking adequate infrastructure.", unit: "Urban Environments" },
+
+  // ══════════════════════════════
+  // SPORT, LEISURE & TOURISM
+  // ══════════════════════════════
+  { term: "Tourism", def: "The activity of visiting a place outside one's usual environment for leisure, business, or other purposes, generating economic and social exchanges.", unit: "Sport, Leisure & Tourism" },
+  { term: "Ecotourism", def: "Responsible travel to natural areas that conserves the environment, sustains the well-being of local people, and involves interpretation and education.", unit: "Sport, Leisure & Tourism" },
+  { term: "Mass tourism", def: "Large-scale tourist activity involving large numbers of visitors, often to established, highly commercialized destinations, raising concerns about overcrowding and environmental damage.", unit: "Sport, Leisure & Tourism" },
+  { term: "Sustainable tourism", def: "Tourism that takes full account of its current and future economic, social, and environmental impacts, addressing the needs of visitors, the industry, the environment, and host communities.", unit: "Sport, Leisure & Tourism" },
+  { term: "Tourist multiplier effect", def: "The process by which money spent by tourists circulates through a local economy, being re-spent multiple times and generating income for a range of businesses and workers beyond the direct tourism sector.", unit: "Sport, Leisure & Tourism" },
+  { term: "Leakage (tourism)", def: "The proportion of tourist spending that leaves the local economy, for example through imported goods, foreign-owned hotels, or repatriated profits from multinational companies.", unit: "Sport, Leisure & Tourism" },
+  { term: "Butler model (Tourism Area Life Cycle)", def: "A model describing the stages of tourist destination development: exploration, involvement, development, consolidation, stagnation, and decline or rejuvenation.", unit: "Sport, Leisure & Tourism" },
+  { term: "Heritage tourism", def: "Travel motivated by experiencing historical and cultural resources, including monuments, museums, cultural landscapes, and living traditions.", unit: "Sport, Leisure & Tourism" },
+  { term: "Carrying capacity (tourism)", def: "The maximum number of people that may visit a tourist destination at the same time, without causing environmental, economic, or social degradation.", unit: "Sport, Leisure & Tourism" },
+  { term: "Overtourism", def: "The situation where the number of tourists exceeds the destination's capacity to absorb them sustainably, resulting in harm to local environments, communities, and visitor experience.", unit: "Sport, Leisure & Tourism" },
+  { term: "Leisure", def: "Time spent away from work and essential domestic activities, available for rest, recreation, or personal development.", unit: "Sport, Leisure & Tourism" },
+  { term: "Recreation", def: "Activities undertaken during leisure time for enjoyment, relaxation, or health, ranging from passive (watching sport) to active (hiking, sport).", unit: "Sport, Leisure & Tourism" },
+  { term: "Sport tourism", def: "Travel motivated by participation in or spectating at sporting events, including mega-events like the Olympics or World Cup, or adventure and recreational sport.", unit: "Sport, Leisure & Tourism" },
+  { term: "Mega-event", def: "A major international event — such as the Olympic Games or FIFA World Cup — that has significant economic, social, and infrastructural impacts on the host city and country.", unit: "Sport, Leisure & Tourism" },
+  { term: "Dark tourism", def: "Travel to sites associated with death, tragedy, or atrocity, such as battlefields, disaster sites, or former concentration camps.", unit: "Sport, Leisure & Tourism" },
+  { term: "Adventure tourism", def: "A type of tourism involving physical challenge, thrill, or risk in natural settings, such as mountain climbing, white-water rafting, or bungee jumping.", unit: "Sport, Leisure & Tourism" },
+  { term: "Cultural tourism", def: "Travel motivated by a desire to experience the culture, arts, heritage, and lifestyle of a destination.", unit: "Sport, Leisure & Tourism" },
+  { term: "National park", def: "A protected area of land designated by a government for conservation of natural environments and biodiversity, often also managed for recreation and tourism.", unit: "Sport, Leisure & Tourism" },
+  { term: "Touristification", def: "The transformation of a place — its economy, culture, and physical environment — to serve the needs and preferences of tourists, sometimes at the expense of local character and residents.", unit: "Sport, Leisure & Tourism" },
+  { term: "Commodification of culture", def: "The process by which cultural practices, traditions, and artefacts are packaged and sold as tourist products, potentially altering or trivialising their original meaning.", unit: "Sport, Leisure & Tourism" },
+  { term: "Nature-based tourism", def: "Tourism that takes place in natural environments and depends on the natural features and experiences those environments provide.", unit: "Sport, Leisure & Tourism" },
+
+  // ══════════════════════════════
+  // POWER, PLACES & NETWORKS (GLOBALIZATION)
+  // ══════════════════════════════
+  { term: "Anti-globalization", def: "A social movement critical of economic globalization, arguing it harms local cultures, workers, and the environment.", unit: "Power, Places & Networks" },
+  { term: "Bandwidth", def: "The maximum amount of data transmitted over an internet connection in a given amount of time.", unit: "Power, Places & Networks" },
+  { term: "BRICS", def: "The acronym for five major emerging economies: Brazil, Russia, India, China, and South Africa.", unit: "Power, Places & Networks" },
+  { term: "Censorship", def: "The suppression of speech, public communication, or other information.", unit: "Power, Places & Networks" },
+  { term: "Civil society", def: "The aggregate of non-governmental organizations and institutions that manifest the interests and will of citizens.", unit: "Power, Places & Networks" },
+  { term: "Contagious diffusion", def: "The spread of something — like a disease or idea — that follows no rules and does not recognise borders. A type of expansion diffusion.", unit: "Power, Places & Networks" },
+  { term: "Containerization", def: "A system of intermodal freight transport using standardized shipping containers that can be efficiently loaded, stacked, and transferred between modes of transport.", unit: "Power, Places & Networks" },
+  { term: "Core and periphery", def: "The concept of a developed core surrounded by an undeveloped periphery. Can be applied at local, national, or global scales.", unit: "Power, Places & Networks" },
+  { term: "Corporate social responsibility (CSR)", def: "A self-regulatory business model in which companies accept responsibility for their impact on society — economic, social, and environmental.", unit: "Power, Places & Networks" },
+  { term: "Crowd-sourcing", def: "Obtaining contributions from a large group of dispersed participants, often via digital platforms, to achieve a collective result.", unit: "Power, Places & Networks" },
+  { term: "Cultural diversity", def: "The quality of diverse or different cultures, as opposed to monoculture or cultural homogenization.", unit: "Power, Places & Networks" },
+  { term: "Cultural homogenization", def: "The reduction in cultural diversity through the popularization and diffusion of a wide array of cultural symbols, customs, ideas, and values.", unit: "Power, Places & Networks" },
+  { term: "Cultural hybridity", def: "The blending of different cultural traits and practices to form new and unique cultural expressions, acknowledging that cultures are constantly evolving through contact.", unit: "Power, Places & Networks" },
+  { term: "Cultural imperialism", def: "The practice of promoting the culture, values, or language of one nation in another, less powerful one.", unit: "Power, Places & Networks" },
+  { term: "Cybersecurity", def: "The practice of protecting networks, devices, and data from unauthorized access or criminal use, ensuring confidentiality, integrity, and availability of information.", unit: "Power, Places & Networks" },
+  { term: "Debt relief", def: "The partial or total remission of debts, especially those owed by developing countries to external creditors.", unit: "Power, Places & Networks" },
+  { term: "Development gap", def: "The widening difference in levels of development between the world's richest and poorest countries.", unit: "Power, Places & Networks" },
+  { term: "Diffusion", def: "The spread of a phenomenon — such as an idea, technological innovation, or disease — over space and time.", unit: "Power, Places & Networks" },
+  { term: "Disruptive technological innovation", def: "A technology that displaces an established technology and shakes up an industry, or a ground-breaking product that creates a completely new industry.", unit: "Power, Places & Networks" },
+  { term: "Drone", def: "An unmanned aircraft or ship that can navigate autonomously, without human control or beyond line of sight.", unit: "Power, Places & Networks" },
+  { term: "Economic development", def: "The process by which simple, low-income national economies are transformed into modern industrial economies.", unit: "Power, Places & Networks" },
+  { term: "Economic sovereignty of states", def: "The freedom of a state from outside intervention in its markets and trading relationships, though no state has complete economic sovereignty.", unit: "Power, Places & Networks" },
+  { term: "Emerging economies", def: "Countries with low to middle per capita income that have undertaken economic development and begun to emerge as significant players in the global economy.", unit: "Power, Places & Networks" },
+  { term: "Expansion diffusion", def: "When innovations spread to new places while staying strong in their original locations.", unit: "Power, Places & Networks" },
+  { term: "Fiber optics", def: "The technology used to transmit information as pulses of light through strands of glass or plastic fiber over long distances.", unit: "Power, Places & Networks" },
+  { term: "Foreign direct investment (FDI)", def: "Investment by a company into the structures, equipment, or organizations of a foreign country; does not include investment in foreign company shares.", unit: "Power, Places & Networks" },
+  { term: "Free trade zone", def: "A designated area within a country where goods can be imported, manufactured, and re-exported without the usual customs regulations, tariffs, or duties, to encourage trade.", unit: "Power, Places & Networks" },
+  { term: "G7", def: "The Group of Seven — an inter-governmental political forum consisting of Canada, France, Germany, Italy, Japan, the United Kingdom, and the United States.", unit: "Power, Places & Networks" },
+  { term: "Geopolitics", def: "The struggle over the control of geographical entities with an international and global dimension, and the use of such entities for political advantage.", unit: "Power, Places & Networks" },
+  { term: "Global connectedness", def: "The depth and breadth of a country's integration with the rest of the world, as manifested by its participation in international flows of products, services, capital, information, and people.", unit: "Power, Places & Networks" },
+  { term: "Global interactions", def: "A two-way and complex process whereby cultural traits and commodities may be adopted, adapted, or resisted by societies. Neither inevitable nor universal.", unit: "Power, Places & Networks" },
+  { term: "Global supply chain", def: "The worldwide system that a business uses to produce products or services.", unit: "Power, Places & Networks" },
+  { term: "Globalization", def: "The growing interdependence of countries worldwide through increasing cross-border transactions in goods, services, and capital, and the rapid diffusion of technology. [IMF]", unit: "Power, Places & Networks" },
+  { term: "Glocalization", def: "Adapting a global product or service to the specific locality or culture in which it is marketed, to improve its success.", unit: "Power, Places & Networks" },
+  { term: "Hegemony", def: "The political, economic, or military predominance of one state over other states.", unit: "Power, Places & Networks" },
+  { term: "Hierarchical diffusion", def: "The spread of something following a chain of command — such as a business or government hierarchy — before reaching the wider public. A type of expansion diffusion.", unit: "Power, Places & Networks" },
+  { term: "Hub port", def: "A port primarily used for concentration and distribution of cargo whose origin or destination is outside the immediate hinterland; focused on ship-to-ship transshipment.", unit: "Power, Places & Networks" },
+  { term: "Illegal flows", def: "The movement of goods, money, or people across borders in violation of laws or regulations, including smuggling, human trafficking, and illicit fund transfers.", unit: "Power, Places & Networks" },
+  { term: "IMF", def: "The International Monetary Fund — an international financial institution of 190 countries that fosters global monetary cooperation, financial stability, and international trade.", unit: "Power, Places & Networks" },
+  { term: "Imperialism", def: "A policy or ideology of extending one nation's rule over peoples and other countries, for political and economic access, power, and control.", unit: "Power, Places & Networks" },
+  { term: "Infrastructure", def: "Physical structures such as roads, railways, bridges, water supply, sewers, electrical grids, and telecommunications that support the sustainable functioning of households and firms.", unit: "Power, Places & Networks" },
+  { term: "International aid", def: "Any form of assistance provided by one country, or a multilateral institution, to another.", unit: "Power, Places & Networks" },
+  { term: "International loan", def: "A loan made by a country or global group such as the IMF to another country.", unit: "Power, Places & Networks" },
+  { term: "Microfinance", def: "A type of banking that provides financial services to low-income individuals or groups who would otherwise have no access to finance.", unit: "Power, Places & Networks" },
+  { term: "Nationalism", def: "A political movement or belief that a nation has the right to independent political development based on a shared history and common destiny.", unit: "Power, Places & Networks" },
+  { term: "OECD", def: "The Organisation for Economic Co-operation and Development — an intergovernmental economic organisation with 38 member countries, founded in 1961 to stimulate economic progress and world trade.", unit: "Power, Places & Networks" },
+  { term: "Offshore tax haven", def: "A country that offers foreign businesses and individuals minimal or no tax liability for their bank deposits, creating advantages for corporations and the very wealthy.", unit: "Power, Places & Networks" },
+  { term: "OPEC", def: "The Organization of the Petroleum Exporting Countries — an intergovernmental cartel of 13 nations that coordinates petroleum production and pricing.", unit: "Power, Places & Networks" },
+  { term: "Outsourcing", def: "The process of subcontracting part of a firm's business to another company to save money.", unit: "Power, Places & Networks" },
+  { term: "Populism", def: "A range of political stances that emphasize 'the people' and often juxtapose them against 'the elite', frequently led by charismatic figures who claim to represent the popular will.", unit: "Power, Places & Networks" },
+  { term: "Profit repatriation", def: "The ability of a firm to send foreign-earned profits or financial assets back to its home country, after meeting the host nation's tax obligations.", unit: "Power, Places & Networks" },
+  { term: "Protectionism", def: "Government policies that restrict international trade through tariffs, quotas, or other measures to help domestic industries.", unit: "Power, Places & Networks" },
+  { term: "Quotas", def: "A government-imposed trade restriction that limits the number or monetary value of goods a country can import or export during a particular period.", unit: "Power, Places & Networks" },
+  { term: "Re-shoring", def: "The process of returning the production and manufacturing of goods back to the company's original country. Also known as onshoring.", unit: "Power, Places & Networks" },
+  { term: "Relocation diffusion", def: "Occurs when people move from their original location to another and bring their innovations, culture, or ideas with them.", unit: "Power, Places & Networks" },
+  { term: "Restricted freedoms", def: "Limitations imposed by governments or other powerful actors on individuals' ability to participate in various aspects of global interactions.", unit: "Power, Places & Networks" },
+  { term: "Shipping lanes", def: "The routes taken by ships, often concentrated in narrow zones, used to transport goods and associated with localized pollution.", unit: "Power, Places & Networks" },
+  { term: "Social entrepreneurship", def: "Addressing human development goals using business techniques and principles focused on benefiting society rather than solely pursuing profits.", unit: "Power, Places & Networks" },
+  { term: "Superpower", def: "A nation or group of nations with a leading and dominant position in international politics.", unit: "Power, Places & Networks" },
+  { term: "Supply chain", def: "A network between a company and its suppliers to produce and distribute a specific product to the final buyer.", unit: "Power, Places & Networks" },
+  { term: "Surveillance", def: "The monitoring of activities, behaviours, and communications of individuals or groups by governments, organisations, or other entities, using technologies like CCTV, internet monitoring, and data collection.", unit: "Power, Places & Networks" },
+  { term: "Tariffs", def: "A tax imposed by a government on imports or exports of goods, used as a source of revenue and as a tool of protectionism.", unit: "Power, Places & Networks" },
+  { term: "Tax avoidance", def: "Any legal method used by a taxpayer to minimize the amount of income tax owed.", unit: "Power, Places & Networks" },
+  { term: "Trade bloc", def: "A type of intergovernmental agreement where barriers to trade (tariffs and others) are reduced or eliminated among participating states.", unit: "Power, Places & Networks" },
+  { term: "Trade restrictions", def: "Artificial restrictions on the trade of goods or services between two countries, typically through tariffs, quotas, or embargoes.", unit: "Power, Places & Networks" },
+  { term: "Trade war", def: "When one country retaliates against another by raising import tariffs or placing other restrictions on that country's imports.", unit: "Power, Places & Networks" },
+  { term: "Trafficked people", def: "Individuals illegally transported, recruited, or harbored through coercion, deception, or force for the purpose of exploitation.", unit: "Power, Places & Networks" },
+  { term: "Transboundary pollution", def: "Pollution that originates in one country but causes damage in another by crossing borders through pathways like water or air.", unit: "Power, Places & Networks" },
+  { term: "Transnational corporation (TNC)", def: "A firm that owns or controls productive operations in more than one country through foreign direct investment.", unit: "Power, Places & Networks" },
+  { term: "Tribalization", def: "The rise of 'us and them' political and cultural movements, often in opposition to globalization, linked to culture wars and defensive forms of identity politics.", unit: "Power, Places & Networks" },
+  { term: "Undersea communications cable", def: "A cable laid on the sea bed between land-based stations to carry telecommunication signals across stretches of ocean.", unit: "Power, Places & Networks" },
+  { term: "Westernization", def: "A process whereby societies adopt Western culture in areas such as industry, technology, science, education, politics, economics, lifestyle, and values.", unit: "Power, Places & Networks" },
+];
+
+// ─────────────────────────────
+// State
+// ─────────────────────────────
+let deck = [];
+let current = 0;
+let isFlipped = false;
+let isDefinitionSide = false; // true = show definition first, false = show term first
+let correct = 0;
+let incorrect = 0;
+let judged = new Set();
+let missedCards = [];
+let activeUnit = 'All';
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getFilteredDeck() {
+  if (activeUnit === 'All') return shuffle(VOCAB);
+  return shuffle(VOCAB.filter(v => v.unit === activeUnit));
+}
+
+function resetDeck() {
+  deck = getFilteredDeck();
+  current = 0;
+  correct = 0;
+  incorrect = 0;
+  judged.clear();
+  missedCards = [];
+  isFlipped = false;
+  updateStats();
+  showCard();
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('gameArea').classList.remove('hidden');
+  document.getElementById('controls').classList.remove('hidden');
+}
+
+function reviewMissed() {
+  if (missedCards.length === 0) return;
+  deck = shuffle(missedCards);
+  current = 0;
+  correct = 0;
+  incorrect = 0;
+  judged.clear();
+  missedCards = [];
+  isFlipped = false;
+  updateStats();
+  showCard();
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('gameArea').classList.remove('hidden');
+  document.getElementById('controls').classList.remove('hidden');
+}
+
+function showCard() {
+  if (current >= deck.length) {
+    showEndScreen();
+    return;
+  }
+
+  const card = deck[current];
+
+  // Randomly decide: term-first or definition-first
+  isDefinitionSide = Math.random() < 0.5;
+
+  // Reset flip
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+
+  // Disable judge buttons
+  document.getElementById('btnGotIt').disabled = true;
+  document.getElementById('btnMissed').disabled = true;
+
+  if (!isDefinitionSide) {
+    // Front = term, Back = definition
+    document.getElementById('modeBadge').textContent = 'Term → Definition';
+    document.getElementById('frontEyebrow').textContent = 'What does this term mean?';
+    document.getElementById('frontText').textContent = card.term;
+    document.getElementById('frontSub').textContent = '';
+    document.getElementById('frontUnit').textContent = card.unit;
+
+    document.getElementById('backEyebrow').textContent = 'Definition';
+    document.getElementById('backTitle').textContent = card.term;
+    document.getElementById('backText').textContent = card.def;
+    document.getElementById('backUnit').textContent = card.unit;
+  } else {
+    // Front = definition, Back = term
+    document.getElementById('modeBadge').textContent = 'Definition → Term';
+    document.getElementById('frontEyebrow').textContent = 'Name this term:';
+    document.getElementById('frontText').textContent = card.def;
+    document.getElementById('frontText').style.fontSize = 'clamp(13px, 2vw, 15px)';
+    document.getElementById('frontSub').textContent = 'Unit: ' + card.unit;
+    document.getElementById('frontUnit').textContent = card.unit;
+
+    document.getElementById('backEyebrow').textContent = 'The term was:';
+    document.getElementById('backTitle').textContent = card.term;
+    document.getElementById('backText').textContent = card.def;
+    document.getElementById('backUnit').textContent = card.unit;
+  }
+
+  // Reset font size for term mode
+  if (!isDefinitionSide) {
+    document.getElementById('frontText').style.fontSize = '';
+  }
+
+  updateStats();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) {
+    document.getElementById('btnGotIt').disabled = false;
+    document.getElementById('btnMissed').disabled = false;
+  } else {
+    document.getElementById('btnGotIt').disabled = true;
+    document.getElementById('btnMissed').disabled = true;
+  }
+}
+
+function judge(got) {
+  if (!isFlipped) return;
+  if (got) {
+    correct++;
+  } else {
+    incorrect++;
+    missedCards.push(deck[current]);
+  }
+  judged.add(current);
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  updateStats();
+  setTimeout(showCard, 300);
+}
+
+function skipCard() {
+  missedCards.push(deck[current]);
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  updateStats();
+  setTimeout(showCard, 200);
+}
+
+function prevCard() {
+  if (current <= 0) return;
+  current--;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  showCard();
+}
+
+function updateStats() {
+  const total = deck.length;
+  const done = current;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('totalStat').textContent = total;
+  document.getElementById('correctStat').textContent = correct;
+  document.getElementById('incorrectStat').textContent = incorrect;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Card ${Math.min(current + 1, total)} of ${total}`;
+}
+
+function showEndScreen() {
+  document.getElementById('gameArea').classList.add('hidden');
+  document.getElementById('controls').classList.add('hidden');
+  const es = document.getElementById('endScreen');
+  es.style.display = 'flex';
+
+  document.getElementById('finalCorrect').textContent = correct;
+  document.getElementById('finalMissed').textContent = incorrect;
+
+  const total = correct + incorrect;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  setTimeout(() => {
+    document.getElementById('pctFill').style.width = pct + '%';
+  }, 100);
+
+  document.getElementById('reviewBtn').style.display = missedCards.length > 0 ? '' : 'none';
+}
+
+// ─────────────────────────────
+// Filter chips
+// ─────────────────────────────
+document.getElementById('filterChips').addEventListener('click', e => {
+  if (!e.target.classList.contains('chip')) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  e.target.classList.add('active');
+  activeUnit = e.target.dataset.unit;
+  resetDeck();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+  if (e.key === 'ArrowRight') skipCard();
+  if (e.key === 'ArrowLeft') prevCard();
+  if (e.key === 'g' || e.key === 'G') judge(true);
+  if (e.key === 'x' || e.key === 'X') judge(false);
+});
+
+// ─────────────────────────────
+// Init
+// ─────────────────────────────
+resetDeck();
+</script>
+</body>
+</html>
