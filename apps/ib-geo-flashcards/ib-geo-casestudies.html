@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Geography — Case Study Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Literata:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b27;
+    --card: #1c2333;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e6e0;
+    --muted: #7a8099;
+    --faint: rgba(255,255,255,0.04);
+
+    /* Unit accent colours */
+    --pop:      #f4a261; /* Changing Population – warm amber */
+    --climate:  #48cae4; /* Global Climate – sky blue */
+    --resource: #57cc99; /* Resource Consumption – green */
+    --urban:    #c77dff; /* Urban Environments – violet */
+    --sport:    #ff6b6b; /* Sport Leisure Tourism – coral */
+    --power:    #ffd166; /* Power Places Networks – gold */
+
+    --active: var(--pop);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Literata', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 60px;
+  }
+
+  /* Topographic line background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 39px,
+        rgba(255,255,255,0.025) 39px,
+        rgba(255,255,255,0.025) 40px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 39px,
+        rgba(255,255,255,0.015) 39px,
+        rgba(255,255,255,0.015) 40px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ─────────────────────── */
+  header {
+    width: 100%;
+    max-width: 860px;
+    padding: 36px 24px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5.5vw, 46px);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--active);
+    transition: color 0.4s;
+  }
+
+  /* ── Unit filter tabs ────────────── */
+  .tabs-wrap {
+    width: 100%;
+    max-width: 860px;
+    padding: 22px 24px 0;
+    position: relative;
+    z-index: 1;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    min-width: max-content;
+  }
+
+  .tab {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+
+  .tab.active {
+    color: var(--bg);
+    border-color: transparent;
+  }
+
+  .tab[data-unit="All"].active          { background: var(--text); }
+  .tab[data-unit="Changing Population"].active   { background: var(--pop); }
+  .tab[data-unit="Global Climate"].active        { background: var(--climate); }
+  .tab[data-unit="Global Resource Consumption"].active { background: var(--resource); }
+  .tab[data-unit="Urban Environments"].active    { background: var(--urban); }
+  .tab[data-unit="Sport, Leisure & Tourism"].active { background: var(--sport); }
+  .tab[data-unit="Power, Places & Networks"].active  { background: var(--power); }
+
+  /* ── Stats row ───────────────────── */
+  .stats-row {
+    width: 100%;
+    max-width: 860px;
+    padding: 18px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; }
+  .stat-n {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+  }
+  .stat-n.g { color: var(--resource); }
+  .stat-n.r { color: var(--sport); }
+  .stat-lbl {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .divider { width: 1px; height: 28px; background: var(--border); }
+
+  .prog-wrap { flex: 1; min-width: 100px; }
+  .prog-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: var(--active);
+    border-radius: 2px;
+    transition: width 0.4s ease, background 0.4s;
+  }
+  .prog-lbl { font-size: 11px; color: var(--muted); margin-top: 5px; font-family: 'Syne', sans-serif; }
+
+  /* ── Card area ───────────────────── */
+  .card-area {
+    width: 100%;
+    max-width: 860px;
+    padding: 24px 24px 0;
+    position: relative;
+    z-index: 1;
+    perspective: 1400px;
+  }
+
+  .mode-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mode-pip {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--active);
+    transition: background 0.4s;
+  }
+
+  .card-wrapper {
+    width: 100%;
+    height: 360px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 520px) { .card-wrapper { height: 300px; } }
+
+  .card-inner {
+    width: 100%; height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.45, 0, 0.15, 1);
+  }
+
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .face {
+    position: absolute; inset: 0;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+  }
+
+  /* Accent band at top of each face */
+  .face::before {
+    content: '';
+    display: block;
+    height: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Unit colour applied via JS class on .card-wrapper */
+  .u-pop    .face.front::before { background: var(--pop); }
+  .u-pop    .face.back::before  { background: var(--pop); }
+  .u-climate  .face.front::before { background: var(--climate); }
+  .u-climate  .face.back::before  { background: var(--climate); }
+  .u-resource .face.front::before { background: var(--resource); }
+  .u-resource .face.back::before  { background: var(--resource); }
+  .u-urban    .face.front::before { background: var(--urban); }
+  .u-urban    .face.back::before  { background: var(--urban); }
+  .u-sport    .face.front::before { background: var(--sport); }
+  .u-sport    .face.back::before  { background: var(--sport); }
+  .u-power    .face.front::before { background: var(--power); }
+  .u-power    .face.back::before  { background: var(--power); }
+
+  .face.back { transform: rotateY(180deg); }
+
+  .face-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 40px;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .face-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .face-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(18px, 3.5vw, 28px);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.15;
+  }
+
+  .face-location {
+    font-family: 'Literata', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .face-facts {
+    font-family: 'Literata', serif;
+    font-size: clamp(13px, 2vw, 15px);
+    color: var(--text);
+    line-height: 1.7;
+    max-width: 560px;
+    text-align: left;
+  }
+
+  .face-facts li {
+    list-style: none;
+    padding-left: 16px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+
+  .face-facts li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--active);
+    transition: color 0.4s;
+    font-style: normal;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    top: 3px;
+  }
+
+  .answer-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(20px, 4vw, 32px);
+    font-weight: 800;
+    color: var(--active);
+    transition: color 0.4s;
+    line-height: 1.1;
+  }
+
+  .face-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .unit-pill {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    color: var(--bg);
+  }
+
+  .u-pop    .unit-pill { background: var(--pop); }
+  .u-climate  .unit-pill { background: var(--climate); }
+  .u-resource .unit-pill { background: var(--resource); }
+  .u-urban    .unit-pill { background: var(--urban); }
+  .u-sport    .unit-pill { background: var(--sport); }
+  .u-power    .unit-pill { background: var(--power); }
+
+  .flip-hint {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  /* ── Controls ────────────────────── */
+  .controls {
+    width: 100%;
+    max-width: 860px;
+    padding: 16px 24px 0;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .judge-row, .nav-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 11px 26px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn:disabled { opacity: 0.3; pointer-events: none; }
+
+  .btn-got {
+    background: var(--resource);
+    color: var(--bg);
+    flex: 1; max-width: 190px; justify-content: center;
+  }
+  .btn-got:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  .btn-missed {
+    background: var(--sport);
+    color: var(--bg);
+    flex: 1; max-width: 190px; justify-content: center;
+  }
+  .btn-missed:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  .btn-solid {
+    background: var(--text);
+    color: var(--bg);
+  }
+  .btn-solid:hover { filter: brightness(0.92); }
+
+  /* ── End screen ──────────────────── */
+  #endScreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 860px;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+    gap: 16px;
+  }
+
+  .end-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 48px 36px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+  }
+
+  .end-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .end-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+
+  .end-scores {
+    display: flex;
+    justify-content: center;
+    gap: 56px;
+    margin-bottom: 28px;
+  }
+
+  .end-score-n {
+    font-family: 'Syne', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .end-score-n.g { color: var(--resource); }
+  .end-score-n.r { color: var(--sport); }
+  .end-score-lbl { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+  .end-bar { height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; max-width: 280px; margin: 0 auto 32px; }
+  .end-fill { height: 100%; background: var(--resource); border-radius: 8px; transition: width 1s ease; }
+
+  .end-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  .hidden { display: none !important; }
+
+  /* Keyboard hint */
+  .kbd-hint {
+    width: 100%;
+    max-width: 860px;
+    padding: 10px 24px 0;
+    position: relative;
+    z-index: 1;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  kbd {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">IB Geography · Case Studies</div>
+  <h1>Case Study <em id="accentWord">Flashcards</em></h1>
+</header>
+
+<!-- Tabs -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-unit="All">All Units</button>
+    <button class="tab" data-unit="Changing Population">Changing Population</button>
+    <button class="tab" data-unit="Global Climate">Global Climate</button>
+    <button class="tab" data-unit="Global Resource Consumption">Resource Consumption</button>
+    <button class="tab" data-unit="Urban Environments">Urban Environments</button>
+    <button class="tab" data-unit="Sport, Leisure & Tourism">Sport, Leisure & Tourism</button>
+    <button class="tab" data-unit="Power, Places & Networks">Power, Places & Networks</button>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat">
+    <div class="stat-n" id="sTot">0</div>
+    <div class="stat-lbl">Total</div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat">
+    <div class="stat-n g" id="sGot">0</div>
+    <div class="stat-lbl">Got It</div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat">
+    <div class="stat-n r" id="sMiss">0</div>
+    <div class="stat-lbl">Missed</div>
+  </div>
+  <div class="divider"></div>
+  <div class="prog-wrap">
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="prog-lbl" id="progLbl">Card 0 of 0</div>
+  </div>
+</div>
+
+<!-- Card -->
+<div class="card-area" id="gameArea">
+  <div class="mode-tag">
+    <div class="mode-pip" id="modePip"></div>
+    <span id="modeLabel">Case Study → Facts</span>
+  </div>
+
+  <div class="card-wrapper" id="cardWrapper" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+
+      <div class="face front" id="fFront">
+        <div class="face-body">
+          <div class="face-eyebrow" id="fEye">Name this case study</div>
+          <div class="face-title" id="fTitle">—</div>
+          <div class="face-location" id="fLoc"></div>
+        </div>
+        <div class="face-footer">
+          <span class="unit-pill" id="fPill">Unit</span>
+          <span class="flip-hint">Click to flip ↩</span>
+        </div>
+      </div>
+
+      <div class="face back" id="fBack">
+        <div class="face-body">
+          <div class="face-eyebrow" id="bEye">Key Facts</div>
+          <div class="answer-name" id="bName"></div>
+          <ul class="face-facts" id="bFacts"></ul>
+        </div>
+        <div class="face-footer">
+          <span class="unit-pill" id="bPill">Unit</span>
+          <span class="flip-hint">Click to flip ↩</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls" id="controls">
+  <div class="judge-row">
+    <button class="btn btn-missed" id="btnM" onclick="judge(false)" disabled>✗ Missed It</button>
+    <button class="btn btn-got"    id="btnG" onclick="judge(true)"  disabled>✓ Got It</button>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="prevCard()">← Prev</button>
+    <button class="btn btn-ghost" onclick="skipCard()">Skip →</button>
+    <button class="btn btn-solid" onclick="resetDeck()">↺ Reshuffle</button>
+  </div>
+</div>
+
+<div class="kbd-hint">
+  Keyboard: <kbd>Space</kbd> flip &nbsp;·&nbsp; <kbd>G</kbd> got it &nbsp;·&nbsp; <kbd>X</kbd> missed &nbsp;·&nbsp; <kbd>→</kbd> skip &nbsp;·&nbsp; <kbd>←</kbd> prev
+</div>
+
+<!-- End screen -->
+<div id="endScreen">
+  <div class="end-card">
+    <div class="end-title">Round Complete</div>
+    <div class="end-sub">Here's how you went</div>
+    <div class="end-scores">
+      <div>
+        <div class="end-score-n g" id="eGot">0</div>
+        <div class="end-score-lbl">Got It</div>
+      </div>
+      <div>
+        <div class="end-score-n r" id="eMiss">0</div>
+        <div class="end-score-lbl">Missed</div>
+      </div>
+    </div>
+    <div class="end-bar"><div class="end-fill" id="eFill" style="width:0%"></div></div>
+    <div class="end-btns">
+      <button class="btn btn-solid" onclick="resetDeck()">↺ Shuffle All Again</button>
+      <button class="btn btn-ghost" id="reviewBtn" onclick="reviewMissed()">Study Missed Cards</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────
+// CASE STUDY DATA
+// Format: { name, location, unit, facts: [str, str, str] }
+// 2–3 bullet facts per card, standard IB Geography examples
+// ─────────────────────────────────────────────────────────
+const CASES = [
+
+  // ════════════════════════════════
+  // CHANGING POPULATION
+  // ════════════════════════════════
+  {
+    name: "Japan — Ageing Population",
+    location: "East Asia",
+    unit: "Changing Population",
+    facts: [
+      "Over 28% of the population is aged 65+, the highest proportion of any country globally.",
+      "Total fertility rate has fallen to ~1.2, far below the replacement level of 2.1.",
+      "Shrinking workforce and rising pension costs strain Japan's economy and healthcare system."
+    ]
+  },
+  {
+    name: "Niger — High Fertility & Population Growth",
+    location: "West Africa",
+    unit: "Changing Population",
+    facts: [
+      "Highest total fertility rate in the world at ~7 children per woman.",
+      "Over 50% of the population is under 15, creating enormous pressure on education and food supply.",
+      "Rapid population growth outpaces economic development, keeping Niger among the world's poorest nations."
+    ]
+  },
+  {
+    name: "China — One-Child Policy",
+    location: "East Asia",
+    unit: "Changing Population",
+    facts: [
+      "Anti-natalist policy introduced in 1980, officially ending in 2015 after ~35 years.",
+      "Reduced fertility rate from ~6 in 1960 to ~1.5, preventing an estimated 400 million births.",
+      "Left a legacy of a rapidly ageing population, skewed sex ratios, and a shrinking labour force."
+    ]
+  },
+  {
+    name: "Syria — Forced Migration & Refugee Crisis",
+    location: "Middle East",
+    unit: "Changing Population",
+    facts: [
+      "Civil war since 2011 displaced over 13 million people — more than half the pre-war population.",
+      "Approximately 6.5 million Syrians became refugees in neighbouring countries including Turkey, Lebanon, and Jordan.",
+      "The crisis strained host-country resources and triggered major political debates across Europe."
+    ]
+  },
+  {
+    name: "Bangladesh — Rural–Urban Migration",
+    location: "South Asia",
+    unit: "Changing Population",
+    facts: [
+      "Dhaka is one of the fastest-growing megacities, fuelled largely by rural–urban migration.",
+      "Climate change impacts — flooding and cyclones — act as environmental push factors from rural areas.",
+      "Migrants often settle in informal settlements (slums), putting pressure on housing and sanitation."
+    ]
+  },
+  {
+    name: "France — Pro-Natalist Policy",
+    location: "Western Europe",
+    unit: "Changing Population",
+    facts: [
+      "Government offers financial incentives including family allowances, tax breaks, and subsidised childcare.",
+      "Fertility rate of ~1.8 is among the highest in Europe, partly attributed to sustained pro-natalist policy since the 1930s.",
+      "Seen as a model for how government intervention can slow population decline."
+    ]
+  },
+  {
+    name: "Philippines — Remittances & Migration",
+    location: "Southeast Asia",
+    unit: "Changing Population",
+    facts: [
+      "Over 10 million Overseas Filipino Workers (OFWs) send home approximately $34 billion USD annually.",
+      "Remittances account for around 8–10% of GDP, making them critical to the national economy.",
+      "Brain drain of skilled nurses, engineers, and teachers is a significant challenge."
+    ]
+  },
+  {
+    name: "India — Demographic Dividend",
+    location: "South Asia",
+    unit: "Changing Population",
+    facts: [
+      "Median age of ~28 gives India a large, young working-age population — a potential demographic dividend.",
+      "Surpassed China as the world's most populous country in 2023 with ~1.43 billion people.",
+      "Success of the dividend depends on education, employment creation, and healthcare investment."
+    ]
+  },
+
+  // ════════════════════════════════
+  // GLOBAL CLIMATE (HAZARDS & RISKS)
+  // ════════════════════════════════
+  {
+    name: "2010 Haiti Earthquake",
+    location: "Caribbean",
+    unit: "Global Climate",
+    facts: [
+      "Magnitude 7.0 earthquake killed over 230,000 people and displaced 1.5 million.",
+      "Severe vulnerability due to poor construction standards, weak governance, and extreme poverty.",
+      "Highlights how physical hazard + high vulnerability = high disaster risk."
+    ]
+  },
+  {
+    name: "2004 Indian Ocean Tsunami",
+    location: "Indian Ocean / Southeast Asia",
+    unit: "Global Climate",
+    facts: [
+      "Triggered by a magnitude 9.1 earthquake off Sumatra; waves reached 14 countries.",
+      "Approximately 230,000 people killed, making it one of the deadliest natural disasters in history.",
+      "Led to the creation of the Indian Ocean Tsunami Warning System."
+    ]
+  },
+  {
+    name: "Typhoon Haiyan (2013)",
+    location: "Philippines",
+    unit: "Global Climate",
+    facts: [
+      "One of the strongest tropical cyclones ever recorded at landfall, with winds exceeding 300 km/h.",
+      "Killed over 6,300 people; storm surge of up to 7 metres inundated coastal communities.",
+      "Highlighted inequalities in disaster preparedness and recovery between wealthy and poor nations."
+    ]
+  },
+  {
+    name: "Bangladesh — Flood Management",
+    location: "South Asia",
+    unit: "Global Climate",
+    facts: [
+      "Over 70% of the country is floodplain, making it highly vulnerable to annual monsoon flooding.",
+      "Flood Action Plan implemented structural (embankments) and non-structural (forecasting, education) responses.",
+      "Climate change threatens to increase flood frequency and severity, with storm surges affecting coastal zones."
+    ]
+  },
+  {
+    name: "Sahel Region — Drought & Desertification",
+    location: "Sub-Saharan Africa",
+    unit: "Global Climate",
+    facts: [
+      "Semi-arid belt stretching across Africa affected by recurring droughts linked to La Niña events.",
+      "Overgrazing, deforestation, and population pressure accelerate desertification.",
+      "The Great Green Wall project aims to restore 100 million hectares of degraded land by 2030."
+    ]
+  },
+  {
+    name: "Maldives — Sea Level Rise",
+    location: "Indian Ocean",
+    unit: "Global Climate",
+    facts: [
+      "Average elevation of less than 1.5 metres above sea level, making it one of the most climate-vulnerable nations.",
+      "Government has purchased land in India as a contingency for potential relocation of its ~500,000 population.",
+      "Case study of existential threat posed by climate change to low-lying island states."
+    ]
+  },
+  {
+    name: "2019–20 Australian Bushfires ('Black Summer')",
+    location: "Australia",
+    unit: "Global Climate",
+    facts: [
+      "Burned over 18 million hectares — an area larger than Syria — killing an estimated 3 billion animals.",
+      "Linked to record-breaking heat and drought conditions intensified by climate change.",
+      "Smoke reached South America; fires released more CO₂ than Australia's annual emissions."
+    ]
+  },
+
+  // ════════════════════════════════
+  // GLOBAL RESOURCE CONSUMPTION
+  // ════════════════════════════════
+  {
+    name: "Aral Sea — Water Mismanagement",
+    location: "Central Asia",
+    unit: "Global Resource Consumption",
+    facts: [
+      "Once the world's fourth-largest lake; lost over 90% of its volume due to Soviet irrigation diversions.",
+      "The fishing industry collapsed, leaving rusting ships on a dried-up seabed in the desert.",
+      "A classic example of unsustainable water use and the consequences of ignoring the water–food–energy nexus."
+    ]
+  },
+  {
+    name: "Amazon Deforestation — Brazil",
+    location: "South America",
+    unit: "Global Resource Consumption",
+    facts: [
+      "The Amazon has lost around 17% of its original forest cover, primarily to cattle ranching and soy farming.",
+      "Deforestation releases stored carbon and disrupts the Amazon's role as a global carbon sink.",
+      "Scientists warn of a 'tipping point' beyond which the forest could transition to savanna irreversibly."
+    ]
+  },
+  {
+    name: "Green Revolution — India",
+    location: "South Asia",
+    unit: "Global Resource Consumption",
+    facts: [
+      "Introduced high-yield crop varieties, irrigation, and fertilizers in the 1960s–70s, transforming food production.",
+      "India went from food-deficit to self-sufficient in wheat and rice within a decade.",
+      "Long-term drawbacks include soil degradation, groundwater depletion, and loss of biodiversity."
+    ]
+  },
+  {
+    name: "Palm Oil Industry — Malaysia & Indonesia",
+    location: "Southeast Asia",
+    unit: "Global Resource Consumption",
+    facts: [
+      "Indonesia and Malaysia produce ~85% of the world's palm oil supply.",
+      "Expansion has driven large-scale deforestation of tropical rainforest and peatland, releasing huge CO₂ stocks.",
+      "Certified Sustainable Palm Oil (CSPO) schemes attempt to balance economic demand with conservation."
+    ]
+  },
+  {
+    name: "Congo Basin — Forest Conservation",
+    location: "Central Africa",
+    unit: "Global Resource Consumption",
+    facts: [
+      "World's second-largest tropical rainforest after the Amazon; stores ~66 billion tonnes of carbon.",
+      "Lower deforestation rates than other tropical regions, but expanding agriculture and logging pose threats.",
+      "Example of resource stewardship — DRC receives international payments for carbon conservation."
+    ]
+  },
+  {
+    name: "Israel — Water Management & Desalination",
+    location: "Middle East",
+    unit: "Global Resource Consumption",
+    facts: [
+      "Produces over 85% of its domestic water needs through desalination and wastewater recycling.",
+      "Drip irrigation technology, pioneered in Israel, reduces agricultural water use by up to 50%.",
+      "A model for water security in arid regions despite high population density."
+    ]
+  },
+  {
+    name: "Food Waste — EU & North America",
+    location: "Global (HIC context)",
+    unit: "Global Resource Consumption",
+    facts: [
+      "Approximately one-third of all food produced globally is lost or wasted each year (~1.3 billion tonnes).",
+      "High-income countries waste food primarily at the retail and consumer level.",
+      "Reducing food waste is estimated to be one of the top solutions to climate change (Project Drawdown)."
+    ]
+  },
+
+  // ════════════════════════════════
+  // URBAN ENVIRONMENTS
+  // ════════════════════════════════
+  {
+    name: "Mumbai — Informal Settlements (Dharavi)",
+    location: "India",
+    unit: "Urban Environments",
+    facts: [
+      "Dharavi is one of Asia's largest informal settlements, home to ~1 million people in ~2 km².",
+      "Despite poor sanitation and overcrowding, it hosts a thriving economy worth ~$1 billion USD annually.",
+      "Redevelopment proposals raise tension between modernisation goals and displacement of existing residents."
+    ]
+  },
+  {
+    name: "Rio de Janeiro — Favelas & Urban Inequality",
+    location: "Brazil",
+    unit: "Urban Environments",
+    facts: [
+      "Approximately 22% of Rio's population live in favelas — informal communities often on steep hillsides.",
+      "The Pacifying Police Unit (UPP) program attempted to reduce gang control, with mixed long-term results.",
+      "Urban inequality is visible spatially — luxury neighbourhoods border informal settlements."
+    ]
+  },
+  {
+    name: "Singapore — Sustainable Urban Planning",
+    location: "Southeast Asia",
+    unit: "Urban Environments",
+    facts: [
+      "A city-state of 5.6 million that transformed from a low-income port into a high-income global hub by the 1990s.",
+      "Known for green building standards, urban biodiversity, and a highly efficient public transport system.",
+      "The 'City in a Garden' concept integrates green space into dense urban development."
+    ]
+  },
+  {
+    name: "London — Gentrification & Urban Regeneration",
+    location: "United Kingdom",
+    unit: "Urban Environments",
+    facts: [
+      "Areas like Shoreditch and Brixton underwent rapid gentrification from the 1990s–2010s, driven by creative industries.",
+      "Rising property values displaced long-term lower-income residents — a key social cost of urban regeneration.",
+      "The London Docklands Development (1980s) is a classic regeneration case study."
+    ]
+  },
+  {
+    name: "Mexico City — Urban Sprawl & Inequality",
+    location: "Mexico",
+    unit: "Urban Environments",
+    facts: [
+      "One of the world's largest metropolitan areas with ~21 million people, sprawling into surrounding states.",
+      "Rapid unplanned growth has led to traffic gridlock, air pollution, and water supply challenges.",
+      "Stark spatial inequality exists between wealthy western suburbs and poorer eastern colonias."
+    ]
+  },
+  {
+    name: "Curitiba — Sustainable Urban Transport",
+    location: "Brazil",
+    unit: "Urban Environments",
+    facts: [
+      "Pioneer of Bus Rapid Transit (BRT) — a system that moves 2.3 million passengers per day at low cost.",
+      "Integrated land use and transport planning reduced car dependency significantly.",
+      "Widely cited as a model for sustainable city planning in the developing world."
+    ]
+  },
+  {
+    name: "Shanghai — Rapid Urban Growth",
+    location: "China",
+    unit: "Urban Environments",
+    facts: [
+      "Grew from ~13 million in 1990 to over 24 million by 2020, one of the fastest urban expansions globally.",
+      "Pudong district transformed from farmland to a global financial district in under 30 years.",
+      "Showcases both the economic power and social disruption of China's rapid urbanisation."
+    ]
+  },
+  {
+    name: "Detroit — Urban Decline & Shrinking City",
+    location: "USA",
+    unit: "Urban Environments",
+    facts: [
+      "Population fell from ~1.8 million (1950) to ~640,000 (2020) as the auto industry declined.",
+      "Widespread building abandonment, rising poverty, and racial segregation characterize post-industrial Detroit.",
+      "Regeneration efforts include urban farming on vacant land and creative district redevelopment."
+    ]
+  },
+
+  // ════════════════════════════════
+  // SPORT, LEISURE & TOURISM
+  // ════════════════════════════════
+  {
+    name: "Venice — Overtourism",
+    location: "Italy",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "Receives up to 30 million visitors per year in a city of only ~50,000 residents.",
+      "Cruise ships and day-trippers cause overcrowding, rising rents, and the displacement of locals.",
+      "Italy introduced a day-visitor entry fee in 2024 as a management strategy."
+    ]
+  },
+  {
+    name: "Costa Rica — Ecotourism Model",
+    location: "Central America",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "Tourism accounts for ~8% of GDP; the country receives ~3 million visitors annually.",
+      "Over 25% of land is protected national parks; ecotourism funds conservation directly.",
+      "Positioned as a global leader in sustainable tourism with high forest cover recovery rates."
+    ]
+  },
+  {
+    name: "2016 Rio Olympics — Mega-Event Impacts",
+    location: "Brazil",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "Cost approximately $13 billion USD; many venues fell into disuse ('white elephants') after the games.",
+      "Thousands of low-income residents were displaced from favelas to build infrastructure.",
+      "Highlights the gap between promises and realities of mega-event 'legacy' for host cities."
+    ]
+  },
+  {
+    name: "Dubai — Tourism Development",
+    location: "UAE",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "Transformed from a small fishing port to a global tourism hub attracting 17+ million visitors annually.",
+      "Artificial Palm Islands and Burj Khalifa typify the engineered tourist landscape approach.",
+      "Tourism diversification strategy reduces economic dependence on oil revenues."
+    ]
+  },
+  {
+    name: "Maasai Mara — Safari Tourism & Local Communities",
+    location: "Kenya",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "One of Africa's top wildlife destinations, generating significant foreign exchange for Kenya.",
+      "Community conservancies channel a share of tourism revenue to local Maasai communities.",
+      "Tensions exist between conservation priorities, tourist demand, and indigenous land rights."
+    ]
+  },
+  {
+    name: "Queenstown — Adventure Tourism",
+    location: "New Zealand",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "Known as the 'adventure capital of the world', pioneering commercial bungee jumping and skydiving.",
+      "Tourism contributes ~70% of Queenstown's economy, making it highly vulnerable to travel disruptions.",
+      "COVID-19 demonstrated the risks of over-reliance on international tourism for local economies."
+    ]
+  },
+  {
+    name: "Bhutan — High Value, Low Volume Tourism",
+    location: "South Asia",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "Charges a Sustainable Development Fee of $200 USD per night to limit visitor numbers and fund conservation.",
+      "Aims to attract only high-spending tourists to minimise environmental impact and cultural disruption.",
+      "Uses tourism policy as a tool to preserve the Gross National Happiness development philosophy."
+    ]
+  },
+  {
+    name: "Barcelona — Managing Tourist Impact",
+    location: "Spain",
+    unit: "Sport, Leisure & Tourism",
+    facts: [
+      "Receives over 30 million tourists per year, leading to protests by locals against touristification.",
+      "The city has capped new tourist apartment licences and introduced zoning to protect residential areas.",
+      "Illustrates the Butler Model's 'stagnation' phase and the challenge of balancing tourism and liveability."
+    ]
+  },
+
+  // ════════════════════════════════
+  // POWER, PLACES & NETWORKS
+  // ════════════════════════════════
+  {
+    name: "Apple Inc. — Global Supply Chain",
+    location: "USA / Global",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Designed in California, manufactured in China (Foxconn), with components sourced from 43+ countries.",
+      "Illustrates how TNCs use global supply chains to minimise costs and maximise efficiency.",
+      "Raises concerns about labour conditions, tax avoidance, and dependency in host economies."
+    ]
+  },
+  {
+    name: "Nike — Outsourcing & Labour Rights",
+    location: "USA / Southeast Asia",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Outsources virtually all manufacturing to factories in Vietnam, Indonesia, and China.",
+      "1990s 'sweatshop' controversies led to major reputational damage and forced supply chain auditing.",
+      "Example of how TNCs balance profit maximisation with growing consumer pressure for ethical production."
+    ]
+  },
+  {
+    name: "China's Belt and Road Initiative (BRI)",
+    location: "Asia / Africa / Europe",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Launched 2013; over $1 trillion USD invested in infrastructure across ~70 countries.",
+      "Critics warn of 'debt trap diplomacy' — countries unable to repay loans cede strategic assets.",
+      "Represents China's strategy to expand geopolitical influence and trade connectivity."
+    ]
+  },
+  {
+    name: "Silicon Valley — Technology Cluster",
+    location: "USA",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Home to Apple, Google, Meta, and thousands of tech startups concentrated in a small California area.",
+      "Agglomeration economies — shared talent pool, venture capital, and knowledge spillovers — drive innovation.",
+      "Represents the concentration of global technological power in a single place."
+    ]
+  },
+  {
+    name: "Rwanda — Post-Conflict Development",
+    location: "East Africa",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Rebuilt from the 1994 genocide to become one of Africa's fastest-growing economies by the 2010s.",
+      "Kigali is ranked one of Africa's cleanest and safest cities; Rwanda has a high rate of female parliamentarians.",
+      "International aid and strong governance turned extreme vulnerability into relative resilience."
+    ]
+  },
+  {
+    name: "Brexit — De-globalisation & Political Sovereignty",
+    location: "United Kingdom / EU",
+    unit: "Power, Places & Networks",
+    facts: [
+      "UK voted to leave the European Union in 2016 and formally exited in January 2020.",
+      "Resulted in new trade barriers, immigration controls, and significant disruption to cross-border supply chains.",
+      "Key example of how nationalism and populism can reverse global integration."
+    ]
+  },
+  {
+    name: "Fairtrade — Banana Trade",
+    location: "Global (Caribbean / Latin America)",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Fairtrade-certified banana farmers receive a guaranteed minimum price plus a social premium.",
+      "Challenges the conventional trade model which concentrates profits in supermarkets and TNCs.",
+      "Illustrates how trade ethics and consumer choices can reshape global commodity flows."
+    ]
+  },
+  {
+    name: "India's IT Sector — Bangalore",
+    location: "India",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Bangalore is the world's second-largest tech startup hub; India earns ~$200 billion from IT exports annually.",
+      "Outsourcing from US and EU corporations drove rapid economic growth and a new middle class.",
+      "Demonstrates how a peripheral economy can become a global node in the digital economy."
+    ]
+  },
+  {
+    name: "The Panama Canal — Strategic Shipping Route",
+    location: "Panama",
+    unit: "Power, Places & Networks",
+    facts: [
+      "Connects the Pacific and Atlantic Oceans; around 14,000 ships pass through annually.",
+      "Handles approximately 5% of world trade, reducing voyage distances by thousands of kilometres.",
+      "Expansion completed in 2016 allows larger 'New Panamax' container ships to pass through."
+    ]
+  },
+];
+
+// ─────────────────────
+// Unit → CSS class map
+// ─────────────────────
+const unitClass = {
+  "Changing Population":          "u-pop",
+  "Global Climate":               "u-climate",
+  "Global Resource Consumption":  "u-resource",
+  "Urban Environments":           "u-urban",
+  "Sport, Leisure & Tourism":     "u-sport",
+  "Power, Places & Networks":     "u-power",
+};
+
+const unitAccent = {
+  "Changing Population":          "var(--pop)",
+  "Global Climate":               "var(--climate)",
+  "Global Resource Consumption":  "var(--resource)",
+  "Urban Environments":           "var(--urban)",
+  "Sport, Leisure & Tourism":     "var(--sport)",
+  "Power, Places & Networks":     "var(--power)",
+};
+
+// ─────────────────────
+// State
+// ─────────────────────
+let deck = [], current = 0, gotIt = 0, missed = 0;
+let isFlipped = false, defFirst = false;
+let missedCards = [];
+let activeUnit = "All";
+
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function filteredDeck() {
+  return shuffle(activeUnit === "All" ? CASES : CASES.filter(c => c.unit === activeUnit));
+}
+
+function setAccent(unit) {
+  const col = unitAccent[unit] || "var(--text)";
+  document.documentElement.style.setProperty('--active', col);
+}
+
+function resetDeck() {
+  deck = filteredDeck();
+  current = 0; gotIt = 0; missed = 0; missedCards = [];
+  isFlipped = false;
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('gameArea').classList.remove('hidden');
+  document.getElementById('controls').classList.remove('hidden');
+  updateStats();
+  showCard();
+}
+
+function reviewMissed() {
+  if (!missedCards.length) return;
+  deck = shuffle(missedCards);
+  current = 0; gotIt = 0; missed = 0; missedCards = [];
+  isFlipped = false;
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('gameArea').classList.remove('hidden');
+  document.getElementById('controls').classList.remove('hidden');
+  updateStats();
+  showCard();
+}
+
+function showCard() {
+  if (current >= deck.length) { showEnd(); return; }
+  const c = deck[current];
+
+  // Set accent colour for this card's unit
+  setAccent(c.unit);
+  const uClass = unitClass[c.unit] || "";
+
+  // Apply unit class to card wrapper for coloured band
+  const wrapper = document.getElementById('cardWrapper');
+  wrapper.className = "card-wrapper " + uClass;
+
+  // Random direction
+  defFirst = Math.random() < 0.5;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('btnG').disabled = true;
+  document.getElementById('btnM').disabled = true;
+
+  const factHTML = c.facts.map(f => `<li>${f}</li>`).join('');
+
+  if (!defFirst) {
+    // Front: name → Back: facts
+    document.getElementById('modeLabel').textContent = 'Case Study → Facts';
+    document.getElementById('fEye').textContent = 'What are the key facts?';
+    document.getElementById('fTitle').textContent = c.name;
+    document.getElementById('fLoc').textContent = c.location;
+    document.getElementById('bEye').textContent = 'Key Facts';
+    document.getElementById('bName').textContent = c.name;
+    document.getElementById('bFacts').innerHTML = factHTML;
+  } else {
+    // Front: facts → Back: name
+    document.getElementById('modeLabel').textContent = 'Facts → Case Study';
+    document.getElementById('fEye').textContent = 'Name this case study:';
+    document.getElementById('fTitle').innerHTML = `<ul class="face-facts" style="text-align:left">${factHTML}</ul>`;
+    document.getElementById('fLoc').textContent = 'Unit: ' + c.unit;
+    document.getElementById('bEye').textContent = 'The case study was:';
+    document.getElementById('bName').textContent = c.name;
+    document.getElementById('bFacts').innerHTML = `<li>${c.location}</li>` + factHTML;
+  }
+
+  // Pills
+  const shortUnit = c.unit.replace('Global Resource Consumption', 'Resource Consumption')
+                          .replace('Power, Places & Networks', 'Power & Networks')
+                          .replace('Sport, Leisure & Tourism', 'Sport & Tourism');
+  document.getElementById('fPill').textContent = shortUnit;
+  document.getElementById('bPill').textContent = shortUnit;
+
+  updateStats();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  document.getElementById('btnG').disabled = !isFlipped;
+  document.getElementById('btnM').disabled = !isFlipped;
+}
+
+function judge(got) {
+  if (!isFlipped) return;
+  if (got) gotIt++; else { missed++; missedCards.push(deck[current]); }
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  updateStats();
+  setTimeout(showCard, 280);
+}
+
+function skipCard() {
+  missedCards.push(deck[current]);
+  current++;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  updateStats();
+  setTimeout(showCard, 200);
+}
+
+function prevCard() {
+  if (current <= 0) return;
+  current--;
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  showCard();
+}
+
+function updateStats() {
+  const tot = deck.length;
+  const done = current;
+  const pct = tot > 0 ? Math.round((done / tot) * 100) : 0;
+  document.getElementById('sTot').textContent = tot;
+  document.getElementById('sGot').textContent = gotIt;
+  document.getElementById('sMiss').textContent = missed;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLbl').textContent = `Card ${Math.min(current + 1, tot)} of ${tot}`;
+}
+
+function showEnd() {
+  document.getElementById('gameArea').classList.add('hidden');
+  document.getElementById('controls').classList.add('hidden');
+  const es = document.getElementById('endScreen');
+  es.style.display = 'flex';
+  document.getElementById('eGot').textContent = gotIt;
+  document.getElementById('eMiss').textContent = missed;
+  const tot = gotIt + missed;
+  const pct = tot > 0 ? Math.round((gotIt / tot) * 100) : 0;
+  setTimeout(() => { document.getElementById('eFill').style.width = pct + '%'; }, 100);
+  document.getElementById('reviewBtn').style.display = missedCards.length ? '' : 'none';
+}
+
+// ─────────────────────
+// Tabs
+// ─────────────────────
+document.getElementById('tabs').addEventListener('click', e => {
+  if (!e.target.classList.contains('tab')) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  activeUnit = e.target.dataset.unit;
+  if (activeUnit !== 'All') setAccent(activeUnit);
+  else document.documentElement.style.setProperty('--active', 'var(--pop)');
+  resetDeck();
+});
+
+// ─────────────────────
+// Keyboard
+// ─────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+  if (e.key === 'ArrowRight') skipCard();
+  if (e.key === 'ArrowLeft')  prevCard();
+  if (e.key === 'g' || e.key === 'G') judge(true);
+  if (e.key === 'x' || e.key === 'X') judge(false);
+});
+
+// ─────────────────────
+// Init
+// ─────────────────────
+resetDeck();
+</script>
+</body>
+</html>
