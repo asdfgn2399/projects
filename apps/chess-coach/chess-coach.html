@@ -1,0 +1,1627 @@
+<div id="chess-coach-root">
+<style>
+  #chess-coach-root {
+    --paper: #F8F6F0;
+    --ink: #1C1B1A;
+    --board-green: #0B5345;
+    --oxblood: #8B2E2E;
+    --brass: #C9A227;
+    --warm-gray: #6B6862;
+    --rule: #D8D3C5;
+    --paper-shadow: rgba(28,27,26,0.08);
+
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(28,27,26,0.025) 27px, rgba(28,27,26,0.025) 28px);
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    line-height: 1.5;
+  }
+  #chess-coach-root * { box-sizing: border-box; }
+
+  #chess-coach-root .cc-display {
+    font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
+  }
+  #chess-coach-root .cc-mono {
+    font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  }
+
+  #chess-coach-root .cc-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 28px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  #chess-coach-root .cc-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 6px;
+  }
+  #chess-coach-root .cc-title {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  #chess-coach-root .cc-title .cc-accent { color: var(--oxblood); font-style: italic; }
+  #chess-coach-root .cc-subtitle {
+    font-size: 12.5px;
+    color: var(--warm-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-weight: 600;
+  }
+
+  /* ---------- Controls panel: chess-clock styled ---------- */
+  #chess-coach-root .cc-clock-panel {
+    margin-top: 28px;
+    border: 1.5px solid var(--ink);
+    background: #fff;
+    box-shadow: 4px 4px 0 var(--paper-shadow);
+    padding: 22px 24px;
+  }
+  #chess-coach-root .cc-clock-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  @media (max-width: 600px) {
+    #chess-coach-root .cc-clock-row { grid-template-columns: 1fr; }
+  }
+  #chess-coach-root .cc-field { margin-bottom: 16px; }
+  #chess-coach-root .cc-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 700;
+    color: var(--warm-gray);
+    margin-bottom: 7px;
+  }
+  #chess-coach-root .cc-input {
+    width: 100%;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--ink);
+    border-radius: 0;
+  }
+  #chess-coach-root .cc-input:focus {
+    outline: 3px solid var(--brass);
+    outline-offset: 0;
+  }
+  #chess-coach-root select.cc-input {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+
+  #chess-coach-root .cc-pill-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #chess-coach-root .cc-pill {
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--ink);
+    transition: background 0.15s, color 0.15s;
+  }
+  #chess-coach-root .cc-pill.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  #chess-coach-root .cc-pill:hover:not(.active) {
+    background: var(--rule);
+  }
+
+  #chess-coach-root .cc-depth-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  #chess-coach-root input[type="range"].cc-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--ink);
+    outline: none;
+  }
+  #chess-coach-root input[type="range"].cc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--brass);
+    border: 2px solid var(--ink);
+    cursor: pointer;
+  }
+  #chess-coach-root input[type="range"].cc-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--brass);
+    border: 2px solid var(--ink);
+    cursor: pointer;
+  }
+  #chess-coach-root .cc-depth-readout {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    min-width: 38px;
+    text-align: right;
+  }
+  #chess-coach-root .cc-depth-caption {
+    font-size: 12px;
+    color: var(--warm-gray);
+    margin-top: 6px;
+  }
+
+  #chess-coach-root .cc-run-btn {
+    width: 100%;
+    margin-top: 12px;
+    background: var(--oxblood);
+    color: var(--paper);
+    border: none;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  #chess-coach-root .cc-run-btn:hover:not(:disabled) { background: #6e2424; }
+  #chess-coach-root .cc-run-btn:disabled {
+    background: var(--warm-gray);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* ---------- Progress ---------- */
+  #chess-coach-root .cc-progress-wrap {
+    margin-top: 24px;
+    border: 1.5px solid var(--ink);
+    background: #fff;
+    padding: 20px 24px;
+  }
+  #chess-coach-root .cc-progress-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+  #chess-coach-root .cc-progress-track {
+    height: 8px;
+    background: var(--rule);
+    position: relative;
+    overflow: hidden;
+  }
+  #chess-coach-root .cc-progress-fill {
+    height: 100%;
+    background: var(--board-green);
+    transition: width 0.25s ease;
+  }
+  #chess-coach-root .cc-progress-detail {
+    font-size: 12px;
+    color: var(--warm-gray);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ---------- Error / empty states ---------- */
+  #chess-coach-root .cc-banner {
+    margin-top: 20px;
+    border-left: 4px solid var(--oxblood);
+    background: #fff;
+    padding: 14px 18px;
+    font-size: 14px;
+  }
+  #chess-coach-root .cc-banner.cc-banner-info {
+    border-left-color: var(--board-green);
+  }
+
+  /* ---------- Results: summary ledger ---------- */
+  #chess-coach-root .cc-results { margin-top: 40px; }
+  #chess-coach-root .cc-section-title {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  #chess-coach-root .cc-section-title .cc-section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--brass);
+    font-weight: 700;
+  }
+  #chess-coach-root .cc-section-rule {
+    border: none;
+    border-top: 1.5px solid var(--ink);
+    margin: 10px 0 22px;
+  }
+
+  #chess-coach-root .cc-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--ink);
+    border: 1.5px solid var(--ink);
+    margin-bottom: 28px;
+  }
+  @media (max-width: 600px) {
+    #chess-coach-root .cc-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  #chess-coach-root .cc-stat-cell {
+    background: #fff;
+    padding: 16px 14px;
+    text-align: center;
+  }
+  #chess-coach-root .cc-stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  #chess-coach-root .cc-stat-num.cc-num-blunder { color: var(--oxblood); }
+  #chess-coach-root .cc-stat-num.cc-num-good { color: var(--board-green); }
+  #chess-coach-root .cc-stat-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--warm-gray);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  /* ---------- Coaching notes (marginalia style) ---------- */
+  #chess-coach-root .cc-coach-note {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 18px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+  #chess-coach-root .cc-coach-note:first-of-type { border-top: none; }
+  #chess-coach-root .cc-coach-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--oxblood);
+    padding-top: 2px;
+  }
+  #chess-coach-root .cc-coach-tag.cc-tag-good { color: var(--board-green); }
+  #chess-coach-root .cc-coach-tag.cc-tag-warn { color: var(--brass); }
+  #chess-coach-root .cc-coach-body p { margin: 0 0 6px; font-size: 14.5px; }
+  #chess-coach-root .cc-coach-body p:last-child { margin-bottom: 0; }
+
+  /* ---------- Phase bar chart ---------- */
+  #chess-coach-root .cc-phase-chart {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  #chess-coach-root .cc-phase-col {
+    flex: 1;
+    text-align: center;
+  }
+  #chess-coach-root .cc-phase-bar-track {
+    height: 140px;
+    background: var(--rule);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border: 1px solid var(--ink);
+  }
+  #chess-coach-root .cc-phase-bar-fill {
+    background: var(--oxblood);
+    width: 100%;
+  }
+  #chess-coach-root .cc-phase-name {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 8px;
+  }
+  #chess-coach-root .cc-phase-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  /* ---------- Scoresheet (per game move list) ---------- */
+  #chess-coach-root .cc-game-card {
+    border: 1.5px solid var(--ink);
+    background: #fff;
+    margin-bottom: 20px;
+  }
+  #chess-coach-root .cc-game-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  #chess-coach-root .cc-game-head:hover { background: var(--paper); }
+  #chess-coach-root .cc-game-title {
+    font-size: 14.5px;
+    font-weight: 700;
+  }
+  #chess-coach-root .cc-game-meta {
+    font-size: 12px;
+    color: var(--warm-gray);
+    margin-top: 2px;
+  }
+  #chess-coach-root .cc-game-result-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border: 1.5px solid var(--ink);
+    text-transform: uppercase;
+  }
+  #chess-coach-root .cc-result-win { background: var(--board-green); color: #fff; border-color: var(--board-green); }
+  #chess-coach-root .cc-result-loss { background: var(--oxblood); color: #fff; border-color: var(--oxblood); }
+  #chess-coach-root .cc-result-draw { background: var(--warm-gray); color: #fff; border-color: var(--warm-gray); }
+
+  #chess-coach-root .cc-game-body {
+    border-top: 1.5px solid var(--ink);
+    padding: 16px 18px;
+    display: none;
+  }
+  #chess-coach-root .cc-game-body.cc-open { display: block; }
+
+  #chess-coach-root .cc-move-row {
+    display: grid;
+    grid-template-columns: 44px 70px 1fr 90px;
+    gap: 10px;
+    align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 13.5px;
+  }
+  #chess-coach-root .cc-move-num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--warm-gray);
+    font-size: 12px;
+  }
+  #chess-coach-root .cc-move-san {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  #chess-coach-root .cc-move-comment {
+    color: var(--ink);
+    font-size: 13px;
+  }
+  #chess-coach-root .cc-move-cploss {
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  #chess-coach-root .cc-tag-blunder { color: var(--oxblood); }
+  #chess-coach-root .cc-tag-mistake { color: #B5651D; }
+  #chess-coach-root .cc-tag-inaccuracy { color: var(--brass); }
+
+  #chess-coach-root .cc-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--warm-gray);
+  }
+  #chess-coach-root .cc-empty-state .cc-display { font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+
+  #chess-coach-root .cc-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--rule);
+    border-top-color: var(--oxblood);
+    border-radius: 50%;
+    animation: cc-spin 0.7s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes cc-spin { to { transform: rotate(360deg); } }
+
+  #chess-coach-root .cc-footnote {
+    font-size: 11.5px;
+    color: var(--warm-gray);
+    margin-top: 36px;
+    text-align: center;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+  }
+
+  #chess-coach-root .cc-cancel-btn {
+    background: transparent;
+    border: 1.5px solid var(--ink);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 10px;
+  }
+</style>
+
+<div class="cc-wrap">
+  <div class="cc-header">
+    <div>
+      <h1 class="cc-title cc-display">Scoresheet<span class="cc-accent">.</span></h1>
+      <div class="cc-subtitle">Engine-backed game review for chess.com</div>
+    </div>
+  </div>
+
+  <div class="cc-clock-panel">
+    <div class="cc-clock-row">
+      <div class="cc-field">
+        <label class="cc-label" for="cc-username">Chess.com username</label>
+        <input type="text" id="cc-username" class="cc-input" placeholder="e.g. hikaru" autocomplete="off" />
+      </div>
+      <div class="cc-field">
+        <label class="cc-label" for="cc-month">Month to review</label>
+        <select id="cc-month" class="cc-input"></select>
+      </div>
+    </div>
+
+    <div class="cc-field">
+      <label class="cc-label">Time control</label>
+      <div class="cc-pill-group" id="cc-timeclass-pills"></div>
+    </div>
+
+    <div class="cc-field">
+      <label class="cc-label">Engine depth — <span id="cc-depth-tier-label">balanced</span></label>
+      <div class="cc-depth-row">
+        <input type="range" min="8" max="20" value="14" class="cc-slider" id="cc-depth-slider" />
+        <div class="cc-depth-readout cc-mono"><span id="cc-depth-value">14</span></div>
+      </div>
+      <div class="cc-depth-caption" id="cc-depth-caption">Depth 14 — good blunder detection, moderate analysis time.</div>
+    </div>
+
+    <button class="cc-run-btn" id="cc-run-btn">Review games</button>
+  </div>
+
+  <div id="cc-progress-zone"></div>
+  <div id="cc-banner-zone"></div>
+  <div id="cc-results-zone" class="cc-results"></div>
+
+  <div class="cc-footnote">
+    Pulls public game data from the chess.com API. Analysis runs locally in your browser using Stockfish (WASM) — nothing is uploaded anywhere.
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     CONSTANTS
+     ============================================================ */
+  var STOCKFISH_BASE = "https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/";
+  var TIME_CLASSES = [
+    { key: "bullet", label: "Bullet" },
+    { key: "blitz", label: "Blitz" },
+    { key: "rapid", label: "Rapid" },
+    { key: "daily", label: "Daily" }
+  ];
+  var MAX_GAMES_HARD_CAP = 60; // safety valve so a huge month can't lock up the browser
+
+  // Centipawn-loss thresholds for move classification (standard convention).
+  var THRESH = {
+    blunder: 100,
+    mistake: 50,
+    inaccuracy: 25
+  };
+
+  /* ============================================================
+     DOM SHORTCUTS
+     ============================================================ */
+  var root = document.getElementById("chess-coach-root");
+  var $ = function (id) { return document.getElementById(id); };
+
+  var usernameInput = $("cc-username");
+  var monthSelect = $("cc-month");
+  var pillsContainer = $("cc-timeclass-pills");
+  var depthSlider = $("cc-depth-slider");
+  var depthValueEl = $("cc-depth-value");
+  var depthCaptionEl = $("cc-depth-caption");
+  var depthTierLabelEl = $("cc-depth-tier-label");
+  var runBtn = $("cc-run-btn");
+  var progressZone = $("cc-progress-zone");
+  var bannerZone = $("cc-banner-zone");
+  var resultsZone = $("cc-results-zone");
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  var state = {
+    selectedTimeClasses: { blitz: true, rapid: true, bullet: false, daily: false },
+    depth: 14,
+    running: false,
+    cancelRequested: false
+  };
+
+  /* ============================================================
+     MONTH PICKER POPULATION
+     ============================================================ */
+  function populateMonths() {
+    var now = new Date();
+    var opts = [];
+    for (var i = 0; i < 24; i++) {
+      var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      var y = d.getFullYear();
+      var m = d.getMonth() + 1;
+      var label = d.toLocaleString(undefined, { month: "long", year: "numeric" });
+      opts.push({ y: y, m: m, label: label });
+    }
+    monthSelect.innerHTML = opts.map(function (o, idx) {
+      return '<option value="' + o.y + '-' + o.m + '"' + (idx === 0 ? " selected" : "") + '>' + o.label + '</option>';
+    }).join("");
+  }
+  populateMonths();
+
+  /* ============================================================
+     TIME CLASS PILLS
+     ============================================================ */
+  function renderPills() {
+    pillsContainer.innerHTML = TIME_CLASSES.map(function (tc) {
+      var active = state.selectedTimeClasses[tc.key];
+      return '<button type="button" class="cc-pill' + (active ? " active" : "") + '" data-tc="' + tc.key + '">' + tc.label + '</button>';
+    }).join("");
+    Array.prototype.forEach.call(pillsContainer.querySelectorAll(".cc-pill"), function (btn) {
+      btn.addEventListener("click", function () {
+        var tc = btn.getAttribute("data-tc");
+        state.selectedTimeClasses[tc] = !state.selectedTimeClasses[tc];
+        renderPills();
+      });
+    });
+  }
+  renderPills();
+
+  /* ============================================================
+     DEPTH SLIDER
+     ============================================================ */
+  function depthCaption(d) {
+    if (d <= 10) return { tier: "fast", text: "Depth " + d + " — quick pass, catches clear blunders only." };
+    if (d <= 14) return { tier: "balanced", text: "Depth " + d + " — good blunder detection, moderate analysis time." };
+    if (d <= 17) return { tier: "thorough", text: "Depth " + d + " — catches subtler mistakes, noticeably slower." };
+    return { tier: "deep", text: "Depth " + d + " — strongest analysis here, expect a long wait on full months." };
+  }
+  function updateDepthUI() {
+    var d = parseInt(depthSlider.value, 10);
+    state.depth = d;
+    depthValueEl.textContent = d;
+    var info = depthCaption(d);
+    depthTierLabelEl.textContent = info.tier;
+    depthCaptionEl.textContent = info.text;
+  }
+  depthSlider.addEventListener("input", updateDepthUI);
+  updateDepthUI();
+
+  /* ============================================================
+     BANNER / PROGRESS HELPERS
+     ============================================================ */
+  function showBanner(html, type) {
+    bannerZone.innerHTML = '<div class="cc-banner' + (type === "info" ? " cc-banner-info" : "") + '">' + html + '</div>';
+  }
+  function clearBanner() { bannerZone.innerHTML = ""; }
+
+  function showProgress(label, pct, detail) {
+    progressZone.innerHTML =
+      '<div class="cc-progress-wrap">' +
+        '<div class="cc-progress-label"><span><span class="cc-spinner"></span>' + label + '</span><span class="cc-mono">' + Math.round(pct) + '%</span></div>' +
+        '<div class="cc-progress-track"><div class="cc-progress-fill" style="width:' + pct + '%;"></div></div>' +
+        (detail ? '<div class="cc-progress-detail">' + detail + '</div>' : '') +
+        '<button class="cc-cancel-btn" id="cc-cancel-btn">Cancel</button>' +
+      '</div>';
+    var cancelBtn = $("cc-cancel-btn");
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", function () {
+        state.cancelRequested = true;
+      });
+    }
+  }
+  function clearProgress() { progressZone.innerHTML = ""; }
+
+  /* ============================================================
+     STOCKFISH ENGINE WRAPPER
+     Loads stockfish.js (asm.js) via a Worker. We deliberately use the
+     older single-file build (v10.0.2) rather than a modern multi-part
+     NNUE build: it has no CORS/header requirements and works reliably
+     inside a sandboxed iframe. It's weaker than the engine chess.com
+     uses internally, but for spotting blunders/mistakes at amateur
+     level it's more than sufficient.
+     ============================================================ */
+  function ChessEngine() {
+    this.worker = null;
+    this.ready = false;
+    this.busy = false;
+    this.queue = [];
+    this.currentResolve = null;
+    this.currentBestEval = null;
+    this.failed = false;
+    this.crashed = false;
+  }
+
+  ChessEngine.prototype.init = function () {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+      var settled = false;
+      try {
+        // stockfish.js (asm.js, not wasm) is the most broadly compatible
+        // single file in the v10.0.2 release and needs no secondary
+        // .wasm fetch, which keeps Worker creation simple under CSP.
+        self.worker = new Worker(STOCKFISH_BASE + "stockfish.js");
+      } catch (e) {
+        self.failed = true;
+        reject(e);
+        return;
+      }
+
+      var onMessage = function (e) {
+        var line = e.data;
+        if (typeof line !== "string") return;
+        if (line.indexOf("uciok") === 0 || line === "uciok") {
+          if (!settled) {
+            settled = true;
+            self.ready = true;
+            self.worker.removeEventListener("message", onMessage);
+            self.worker.postMessage("setoption name Hash value 32");
+            resolve();
+          }
+        }
+      };
+      self.worker.addEventListener("message", onMessage);
+      self.worker.addEventListener("error", function (err) {
+        if (!settled) {
+          settled = true;
+          self.failed = true;
+          reject(err);
+          return;
+        }
+        // The worker died after startup, mid-analysis. Mark the engine
+        // as crashed so in-flight and future evaluate() calls fail fast
+        // with a clear error instead of hanging forever waiting for a
+        // bestmove that will never arrive.
+        self.crashed = true;
+        self.busy = false;
+        if (self.currentReject) {
+          var reject2 = self.currentReject;
+          self.currentReject = null;
+          reject2(new Error("Engine crashed mid-analysis"));
+        }
+      });
+
+      self.worker.postMessage("uci");
+
+      // Safety timeout: some sandboxed environments silently fail to
+      // start the worker script. Don't hang the whole app forever.
+      setTimeout(function () {
+        if (!settled) {
+          settled = true;
+          self.failed = true;
+          reject(new Error("Engine did not respond in time"));
+        }
+      }, 12000);
+    });
+  };
+
+  // Evaluate a single FEN position to the given depth.
+  // Resolves to { cp: number|null, mate: number|null, bestMove: string }
+  // cp/mate are always from White's perspective (UCI convention adjusted).
+  // Rejects if the engine has already crashed, or if this specific
+  // evaluation times out (covers a wedged/unresponsive worker).
+  ChessEngine.prototype.evaluate = function (fen, depth) {
+    var self = this;
+    if (self.crashed) {
+      return Promise.reject(new Error("Engine crashed mid-analysis"));
+    }
+    return new Promise(function (resolve, reject) {
+      var task = { fen: fen, depth: depth, resolve: resolve, reject: reject };
+      self.queue.push(task);
+      self._pump();
+    });
+  };
+
+  // Per-evaluation watchdog: a single position should never take this
+  // long even at high depth on a slow device. If it does, something is
+  // wedged (e.g. the worker silently stopped responding), and we'd
+  // rather fail that one position than hang the whole batch forever.
+  var EVAL_TIMEOUT_MS = 30000;
+
+  ChessEngine.prototype._pump = function () {
+    var self = this;
+    if (self.busy || self.queue.length === 0 || !self.ready || self.crashed) return;
+    self.busy = true;
+    var task = self.queue.shift();
+    self.currentReject = task.reject;
+
+    var lastCp = null;
+    var lastMate = null;
+    var sideToMove = task.fen.split(" ")[1]; // 'w' or 'b'
+    var finished = false;
+
+    var timeoutHandle = setTimeout(function () {
+      if (finished) return;
+      finished = true;
+      self.worker.removeEventListener("message", onMessage);
+      self.currentReject = null;
+      self.busy = false;
+      // Resolve with a neutral/unknown eval rather than rejecting the
+      // whole batch - one slow position shouldn't sink the entire run.
+      task.resolve({ cp: null, mate: null, bestMove: null, timedOut: true });
+      self._pump();
+    }, EVAL_TIMEOUT_MS);
+
+    var onMessage = function (e) {
+      var line = e.data;
+      if (typeof line !== "string") return;
+
+      if (line.indexOf("info depth") === 0 && line.indexOf(" score ") !== -1) {
+        var cpMatch = line.match(/score cp (-?\d+)/);
+        var mateMatch = line.match(/score mate (-?\d+)/);
+        if (cpMatch) {
+          var cp = parseInt(cpMatch[1], 10);
+          // UCI reports score from the perspective of the side to move.
+          // Normalize to White's perspective for consistent comparison.
+          lastCp = sideToMove === "w" ? cp : -cp;
+          lastMate = null;
+        } else if (mateMatch) {
+          var mateIn = parseInt(mateMatch[1], 10);
+          lastMate = sideToMove === "w" ? mateIn : -mateIn;
+          lastCp = null;
+        }
+      }
+
+      if (line.indexOf("bestmove") === 0) {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeoutHandle);
+        self.worker.removeEventListener("message", onMessage);
+        var parts = line.split(" ");
+        var bestMove = parts.length > 1 ? parts[1] : null;
+        self.currentReject = null;
+        self.busy = false;
+        task.resolve({ cp: lastCp, mate: lastMate, bestMove: bestMove });
+        self._pump();
+      }
+    };
+
+    self.worker.addEventListener("message", onMessage);
+    self.worker.postMessage("position fen " + task.fen);
+    self.worker.postMessage("go depth " + task.depth);
+  };
+
+  ChessEngine.prototype.terminate = function () {
+    if (this.worker) {
+      try { this.worker.terminate(); } catch (e) {}
+      this.worker = null;
+    }
+  };
+
+  /* ============================================================
+     CHESS.COM API CLIENT
+     Public, unauthenticated, read-only endpoints.
+     ============================================================ */
+  function fetchMonthGames(username, year, month) {
+    var mm = month < 10 ? "0" + month : "" + month;
+    var url = "https://api.chess.com/pub/player/" + encodeURIComponent(username.toLowerCase()) + "/games/" + year + "/" + mm;
+    return fetch(url).then(function (resp) {
+      if (resp.status === 404) {
+        // chess.com returns 404 both for "user has no games this month"
+        // and "user does not exist" - we disambiguate via the profile check below.
+        return { games: [] };
+      }
+      if (!resp.ok) {
+        throw new Error("Chess.com API returned status " + resp.status);
+      }
+      return resp.json();
+    });
+  }
+
+  function verifyUsernameExists(username) {
+    var url = "https://api.chess.com/pub/player/" + encodeURIComponent(username.toLowerCase());
+    return fetch(url).then(function (resp) {
+      return resp.ok;
+    }).catch(function () {
+      return false;
+    });
+  }
+
+  /* ============================================================
+     GAME PHASE CLASSIFICATION
+     Opening: first 10 full moves (by ply count <= 20).
+     Endgame: heuristic on total non-pawn, non-king material left
+     on the board (<= 13 points combined, roughly two minor pieces
+     or a rook each) OR ply count > 60, whichever comes first.
+     Middlegame: everything else.
+     ============================================================ */
+  var PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+
+  function nonPawnMaterial(fen) {
+    var boardPart = fen.split(" ")[0];
+    var total = 0;
+    for (var i = 0; i < boardPart.length; i++) {
+      var c = boardPart[i].toLowerCase();
+      if (PIECE_VALUES[c] !== undefined && c !== "p" && c !== "k") {
+        total += PIECE_VALUES[c];
+      }
+    }
+    return total;
+  }
+
+  function classifyPhase(fen, plyIndex) {
+    if (plyIndex <= 20) return "opening";
+    var material = nonPawnMaterial(fen);
+    if (material <= 13 || plyIndex > 60) return "endgame";
+    return "middlegame";
+  }
+
+  function classifyMoveQuality(cpLoss) {
+    if (cpLoss >= THRESH.blunder) return "blunder";
+    if (cpLoss >= THRESH.mistake) return "mistake";
+    if (cpLoss >= THRESH.inaccuracy) return "inaccuracy";
+    return "ok";
+  }
+
+  // Converts an engine eval (White's perspective, cp or mate) into a
+  // single signed "centipawn-equivalent" number for arithmetic, capping
+  // mate scores so they don't blow out averages.
+  var MATE_CP_CAP = 1000;
+  function evalToScalar(ev) {
+    if (ev.mate !== null && ev.mate !== undefined) {
+      var sign = ev.mate > 0 ? 1 : -1;
+      return sign * (MATE_CP_CAP - Math.min(Math.abs(ev.mate), 20) * 10);
+    }
+    if (ev.cp !== null && ev.cp !== undefined) {
+      return ev.cp;
+    }
+    return 0;
+  }
+
+  /* ============================================================
+     ANALYZE A SINGLE GAME
+     Returns a per-move annotated array plus aggregate phase stats
+     for that game. The PGN is replayed with chess.js (the source of
+     truth for legal moves/FEN); we evaluate the position BEFORE each
+     move was played, i.e. cpLoss for ply N = how much the position
+     dropped, for the player who just moved, from the position they
+     had right before moving to the position right after.
+     ============================================================ */
+  function analyzeGame(pgn, engine, depth, perspectiveUsername, onPlyDone) {
+    var chess;
+    var loaded;
+    try {
+      chess = new Chess();
+      loaded = chess.load_pgn(pgn, { sloppy: true });
+    } catch (e) {
+      // Malformed PGN can throw in some edge cases rather than returning
+      // false. Treat the same as an unparseable game: skip it.
+      return Promise.resolve(null);
+    }
+    if (!loaded) {
+      // chess.js (0.10.x) returns false on any illegal/unparseable move
+      // and does not apply moves past the failure point in that case,
+      // so it's safe to simply skip the game rather than risk silently
+      // analyzing a truncated game.
+      return Promise.resolve(null);
+    }
+
+    var verboseHistory = chess.history({ verbose: true });
+    if (verboseHistory.length === 0) {
+      return Promise.resolve(null);
+    }
+
+    // Replay from scratch, collecting FEN before and after each move.
+    var replay = new Chess();
+    var plies = [];
+    for (var i = 0; i < verboseHistory.length; i++) {
+      var mv = verboseHistory[i];
+      var fenBefore = replay.fen();
+      replay.move(mv.san, { sloppy: true });
+      var fenAfter = replay.fen();
+      plies.push({
+        ply: i + 1,
+        moveNumber: Math.floor(i / 2) + 1,
+        color: mv.color === "w" ? "white" : "black",
+        san: mv.san,
+        fenBefore: fenBefore,
+        fenAfter: fenAfter
+      });
+    }
+
+    // Evaluate every position in the game (N+1 evaluations for N plies:
+    // the starting position counts as the "before" of ply 1).
+    var fenSequence = [plies[0].fenBefore];
+    for (var j = 0; j < plies.length; j++) fenSequence.push(plies[j].fenAfter);
+
+    var evals = new Array(fenSequence.length);
+    var idx = 0;
+
+    function evalNext() {
+      if (idx >= fenSequence.length) return Promise.resolve();
+      var myIdx = idx++;
+      return engine.evaluate(fenSequence[myIdx], depth).then(function (ev) {
+        evals[myIdx] = ev;
+        if (onPlyDone) onPlyDone(idx, fenSequence.length);
+        return evalNext();
+      });
+    }
+
+    return evalNext().then(function () {
+      var annotated = [];
+      for (var k = 0; k < plies.length; k++) {
+        var p = plies[k];
+        var evalBefore = evals[k];
+        var evalAfter = evals[k + 1];
+        var scalarBefore = evalToScalar(evalBefore);
+        var scalarAfter = evalToScalar(evalAfter);
+
+        // Loss is measured from the mover's own perspective: if White
+        // moved, a drop in White's eval is a loss; if Black moved, a
+        // drop in Black's eval (i.e. a rise in White's eval) is a loss.
+        var cpLoss;
+        if (p.color === "white") {
+          cpLoss = Math.max(0, scalarBefore - scalarAfter);
+        } else {
+          cpLoss = Math.max(0, (-scalarBefore) - (-scalarAfter));
+        }
+
+        var quality = classifyMoveQuality(cpLoss);
+        var phase = classifyPhase(p.fenBefore, p.ply);
+
+        annotated.push({
+          ply: p.ply,
+          moveNumber: p.moveNumber,
+          color: p.color,
+          san: p.san,
+          cpLoss: Math.round(cpLoss),
+          quality: quality,
+          phase: phase,
+          evalBefore: evalBefore,
+          evalAfter: evalAfter,
+          bestMove: evalBefore ? evalBefore.bestMove : null
+        });
+      }
+      return annotated;
+    });
+  }
+
+  /* ============================================================
+     AGGREGATION ACROSS GAMES
+     Builds the stats that drive the coaching panel: per-phase error
+     rates, move-number histogram of blunders, color split, opening
+     (ECO) weak spots, and a simple "time pressure" signal based on
+     whether errors cluster in the last third of the player's moves.
+     ============================================================ */
+  function aggregateResults(games) {
+    // games: array of { meta, annotated, perspectiveColor }
+    var totals = {
+      movesAnalyzed: 0,
+      blunders: 0,
+      mistakes: 0,
+      inaccuracies: 0,
+      ok: 0
+    };
+    var phaseTotals = {
+      opening: { moves: 0, errorMoves: 0 },
+      middlegame: { moves: 0, errorMoves: 0 },
+      endgame: { moves: 0, errorMoves: 0 }
+    };
+    var moveNumberBuckets = {}; // bucket of 5 full-moves -> {errorMoves, totalMoves}
+    var openingStats = {}; // eco -> {games, errorMoves, totalMoves, wins, losses, draws}
+    var colorStats = {
+      white: { games: 0, avgCpLossOpening: [], avgCpLossMiddle: [], avgCpLossEnd: [] },
+      black: { games: 0, avgCpLossOpening: [], avgCpLossMiddle: [], avgCpLossEnd: [] }
+    };
+    var lateGameErrorCount = 0;
+    var lateGameMoveCount = 0;
+    var earlyGameErrorCount = 0;
+    var earlyGameMoveCount = 0;
+    var worstMoments = []; // top blunders/mistakes across all games for callouts
+
+    games.forEach(function (g) {
+      var myMoves = g.annotated.filter(function (m) { return m.color === g.perspectiveColor; });
+      var totalMyMoves = myMoves.length;
+
+      colorStats[g.perspectiveColor].games++;
+
+      myMoves.forEach(function (m, i) {
+        totals.movesAnalyzed++;
+        if (m.quality === "blunder") totals.blunders++;
+        else if (m.quality === "mistake") totals.mistakes++;
+        else if (m.quality === "inaccuracy") totals.inaccuracies++;
+        else totals.ok++;
+
+        var isError = m.quality === "blunder" || m.quality === "mistake";
+
+        phaseTotals[m.phase].moves++;
+        if (isError) phaseTotals[m.phase].errorMoves++;
+
+        var bucketStart = Math.floor((m.moveNumber - 1) / 5) * 5 + 1;
+        var bucketKey = bucketStart + "-" + (bucketStart + 4);
+        if (!moveNumberBuckets[bucketKey]) {
+          moveNumberBuckets[bucketKey] = { start: bucketStart, errorMoves: 0, totalMoves: 0 };
+        }
+        moveNumberBuckets[bucketKey].totalMoves++;
+        if (isError) moveNumberBuckets[bucketKey].errorMoves++;
+
+        // Late vs early game (within this player's own move sequence,
+        // not ply count) used as a rough proxy for time pressure.
+        var fractionThrough = totalMyMoves > 1 ? i / (totalMyMoves - 1) : 0;
+        if (fractionThrough >= 0.66) {
+          lateGameMoveCount++;
+          if (isError) lateGameErrorCount++;
+        } else if (fractionThrough <= 0.33) {
+          earlyGameMoveCount++;
+          if (isError) earlyGameErrorCount++;
+        }
+
+        if (isError) {
+          worstMoments.push({
+            cpLoss: m.cpLoss,
+            quality: m.quality,
+            san: m.san,
+            moveNumber: m.moveNumber,
+            color: m.color,
+            phase: m.phase,
+            bestMove: m.bestMove,
+            gameUrl: g.meta.url,
+            gameLabel: g.meta.label
+          });
+        }
+      });
+
+      var eco = g.meta.eco || "Unknown opening";
+      if (!openingStats[eco]) {
+        openingStats[eco] = { games: 0, errorMoves: 0, totalMoves: 0, wins: 0, losses: 0, draws: 0, name: g.meta.ecoName || eco };
+      }
+      openingStats[eco].games++;
+      openingStats[eco].totalMoves += totalMyMoves;
+      openingStats[eco].errorMoves += myMoves.filter(function (m) { return m.quality === "blunder" || m.quality === "mistake"; }).length;
+      if (g.meta.result === "win") openingStats[eco].wins++;
+      else if (g.meta.result === "loss") openingStats[eco].losses++;
+      else openingStats[eco].draws++;
+    });
+
+    worstMoments.sort(function (a, b) { return b.cpLoss - a.cpLoss; });
+
+    return {
+      totals: totals,
+      phaseTotals: phaseTotals,
+      moveNumberBuckets: moveNumberBuckets,
+      openingStats: openingStats,
+      lateGameErrorRate: lateGameMoveCount > 0 ? lateGameErrorCount / lateGameMoveCount : null,
+      earlyGameErrorRate: earlyGameMoveCount > 0 ? earlyGameErrorCount / earlyGameMoveCount : null,
+      worstMoments: worstMoments.slice(0, 8),
+      colorStats: colorStats
+    };
+  }
+
+  /* ============================================================
+     COACHING NOTES GENERATION
+     Translates the aggregate stats into plain-language observations.
+     Each note: { tag: 'blunder'|'good'|'warn', title, body }
+     ============================================================ */
+  function generateCoachingNotes(agg, gameCount) {
+    var notes = [];
+    var pt = agg.phaseTotals;
+
+    function errRate(p) { return p.moves > 0 ? p.errorMoves / p.moves : 0; }
+
+    // Phase comparison
+    var phases = ["opening", "middlegame", "endgame"].map(function (name) {
+      return { name: name, rate: errRate(pt[name]), moves: pt[name].moves };
+    }).filter(function (p) { return p.moves >= 5; });
+
+    if (phases.length > 0) {
+      phases.sort(function (a, b) { return b.rate - a.rate; });
+      var worst = phases[0];
+      if (worst.rate > 0.12) {
+        notes.push({
+          tag: "blunder",
+          title: "Weakest phase: the " + worst.name,
+          body: "Roughly " + Math.round(worst.rate * 100) + "% of your moves in the " + worst.name +
+                " were mistakes or blunders, the highest error rate of any phase across these games. " +
+                (worst.name === "endgame" ? "This often comes down to technique under simplified positions — practicing basic king and pawn endgames, and rook endgame conversions, tends to close this gap fastest." :
+                 worst.name === "opening" ? "This usually means either an unfamiliar line or rushing through known theory. Slowing down through the first 10-12 moves, even in fast time controls, tends to help." :
+                 "This is the phase with the most decisions per game, so it's also where small calculation slips compound. Working through tactics puzzles in similar structures should help.")
+        });
+      } else {
+        notes.push({
+          tag: "good",
+          title: "No single phase stands out as a major weakness",
+          body: "Your error rate is fairly even across the opening, middlegame, and endgame. The " + worst.name + " is relatively your weakest at " + Math.round(worst.rate * 100) + "%, but it's not a dramatic outlier."
+        });
+      }
+    }
+
+    // Time pressure / late-game collapse signal
+    if (agg.lateGameErrorRate !== null && agg.earlyGameErrorRate !== null && agg.earlyGameErrorRate > 0) {
+      var ratio = agg.lateGameErrorRate / Math.max(agg.earlyGameErrorRate, 0.01);
+      if (agg.lateGameErrorRate > 0.15 && ratio > 1.5) {
+        notes.push({
+          tag: "warn",
+          title: "Accuracy drops late in your games",
+          body: "In the final third of your moves, you blundered or made mistakes " + Math.round(agg.lateGameErrorRate * 100) +
+                "% of the time, compared to " + Math.round(agg.earlyGameErrorRate * 100) + "% early on — about " + ratio.toFixed(1) +
+                "x worse. This pattern usually points to clock pressure rather than a knowledge gap. If you're not already, consider leaving a bit more time in reserve for the middlegame so you're not scrambling later."
+        });
+      } else if (agg.lateGameErrorRate < agg.earlyGameErrorRate * 0.7) {
+        notes.push({
+          tag: "good",
+          title: "You play more accurately as games go on",
+          body: "Your error rate actually drops in the final third of your moves compared to the start. That's a good sign for focus and stamina — your earlier errors are more likely calculation slips than time trouble."
+        });
+      }
+    }
+
+    // Opening repertoire weak points
+    var openingEntries = Object.keys(agg.openingStats).map(function (k) { return agg.openingStats[k]; })
+      .filter(function (o) { return o.games >= 2; });
+    if (openingEntries.length > 0) {
+      openingEntries.sort(function (a, b) {
+        var aRate = a.totalMoves > 0 ? a.errorMoves / a.totalMoves : 0;
+        var bRate = b.totalMoves > 0 ? b.errorMoves / b.totalMoves : 0;
+        return bRate - aRate;
+      });
+      var worstOpening = openingEntries[0];
+      var worstOpeningRate = worstOpening.totalMoves > 0 ? worstOpening.errorMoves / worstOpening.totalMoves : 0;
+      if (worstOpeningRate > 0.1) {
+        var scoreLine = worstOpening.wins + "W " + worstOpening.losses + "L " + worstOpening.draws + "D";
+        notes.push({
+          tag: "warn",
+          title: "Recurring trouble in " + worstOpening.name,
+          body: "Across " + worstOpening.games + " games in this opening (" + scoreLine + "), your error rate ran higher than your average. " +
+                "If this keeps coming up, it's worth reviewing a few lines of theory here specifically, rather than treating each loss as a one-off."
+        });
+      }
+    }
+
+    // Worst single moments
+    if (agg.worstMoments.length > 0) {
+      var top = agg.worstMoments[0];
+      notes.push({
+        tag: "blunder",
+        title: "Biggest single swing: " + top.san + " (move " + top.moveNumber + ")",
+        body: "This move cost roughly " + top.cpLoss + " centipawns of evaluation in the " + top.phase + ". " +
+              (top.bestMove ? "The engine's preferred continuation here was " + top.bestMove + ". " : "") +
+              "See the full move list below for this and other flagged moments, game by game."
+      });
+    }
+
+    // Overall blunder rate framing
+    var totalErr = agg.totals.blunders + agg.totals.mistakes;
+    var overallRate = agg.totals.movesAnalyzed > 0 ? totalErr / agg.totals.movesAnalyzed : 0;
+    notes.push({
+      tag: overallRate < 0.08 ? "good" : "warn",
+      title: "Overall move accuracy across " + gameCount + " game" + (gameCount === 1 ? "" : "s"),
+      body: Math.round((1 - overallRate) * 100) + "% of your analyzed moves were rated okay-or-better by the engine (inaccuracy threshold or below). " +
+            agg.totals.blunders + " moves were flagged as outright blunders, " + agg.totals.mistakes + " as mistakes, and " + agg.totals.inaccuracies + " as inaccuracies."
+    });
+
+    return notes;
+  }
+
+  /* ============================================================
+     RENDERING
+     ============================================================ */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function renderStatGrid(agg) {
+    var total = agg.totals.movesAnalyzed;
+    var pct = function (n) { return total > 0 ? Math.round((n / total) * 100) : 0; };
+    return (
+      '<div class="cc-stat-grid">' +
+        '<div class="cc-stat-cell"><div class="cc-stat-num cc-num-blunder">' + agg.totals.blunders + '</div><div class="cc-stat-label">Blunders</div></div>' +
+        '<div class="cc-stat-cell"><div class="cc-stat-num" style="color:#B5651D;">' + agg.totals.mistakes + '</div><div class="cc-stat-label">Mistakes</div></div>' +
+        '<div class="cc-stat-cell"><div class="cc-stat-num" style="color:var(--brass);">' + agg.totals.inaccuracies + '</div><div class="cc-stat-label">Inaccuracies</div></div>' +
+        '<div class="cc-stat-cell"><div class="cc-stat-num cc-num-good">' + pct(agg.totals.ok) + '%</div><div class="cc-stat-label">Sound moves</div></div>' +
+      '</div>'
+    );
+  }
+
+  function renderPhaseChart(agg) {
+    var phases = [
+      { key: "opening", label: "Opening" },
+      { key: "middlegame", label: "Middlegame" },
+      { key: "endgame", label: "Endgame" }
+    ];
+    var cols = phases.map(function (p) {
+      var data = agg.phaseTotals[p.key];
+      var rate = data.moves > 0 ? data.errorMoves / data.moves : 0;
+      var heightPct = Math.max(4, Math.round(rate * 100 / 0.4 * 100) / 100); // scale: 40% error rate = full bar
+      heightPct = Math.min(100, heightPct);
+      return (
+        '<div class="cc-phase-col">' +
+          '<div class="cc-phase-bar-track"><div class="cc-phase-bar-fill" style="height:' + heightPct + '%;"></div></div>' +
+          '<div class="cc-phase-name">' + p.label + '</div>' +
+          '<div class="cc-phase-pct">' + Math.round(rate * 100) + '%</div>' +
+        '</div>'
+      );
+    }).join("");
+    return '<div class="cc-phase-chart">' + cols + '</div>' +
+           '<div style="font-size:12px; color:var(--warm-gray); margin-top:-18px; margin-bottom:28px;">Share of moves in each phase rated mistake or blunder.</div>';
+  }
+
+  function renderCoachingNotes(notes) {
+    return notes.map(function (n) {
+      var tagClass = n.tag === "good" ? "cc-tag-good" : n.tag === "warn" ? "cc-tag-warn" : "";
+      var tagText = n.tag === "good" ? "Strength" : n.tag === "warn" ? "Pattern" : "Weakness";
+      return (
+        '<div class="cc-coach-note">' +
+          '<div class="cc-coach-tag ' + tagClass + '">' + tagText + '</div>' +
+          '<div class="cc-coach-body"><p><strong>' + escapeHtml(n.title) + '</strong></p><p>' + escapeHtml(n.body) + '</p></div>' +
+        '</div>'
+      );
+    }).join("");
+  }
+
+  function formatEvalForDisplay(ev) {
+    if (!ev) return "";
+    if (ev.mate !== null && ev.mate !== undefined) {
+      return "#" + Math.abs(ev.mate);
+    }
+    if (ev.cp !== null && ev.cp !== undefined) {
+      return (ev.cp / 100).toFixed(2);
+    }
+    return "";
+  }
+
+  function renderGameCard(g, idx) {
+    var resultClass = g.meta.result === "win" ? "cc-result-win" : g.meta.result === "loss" ? "cc-result-loss" : "cc-result-draw";
+    var resultText = g.meta.result === "win" ? "Win" : g.meta.result === "loss" ? "Loss" : "Draw";
+
+    var flaggedRows = g.annotated.filter(function (m) {
+      return m.color === g.perspectiveColor && (m.quality === "blunder" || m.quality === "mistake" || m.quality === "inaccuracy");
+    });
+
+    var rowsHtml;
+    if (flaggedRows.length === 0) {
+      rowsHtml = '<div style="padding:14px 0; color:var(--warm-gray); font-size:13.5px;">No notable inaccuracies, mistakes, or blunders flagged for you in this game at the selected depth.</div>';
+    } else {
+      rowsHtml = flaggedRows.map(function (m) {
+        var tagClass = "cc-tag-" + m.quality;
+        var comment = m.quality === "blunder" ? "Blunder" : m.quality === "mistake" ? "Mistake" : "Inaccuracy";
+        if (m.bestMove) comment += " — engine preferred " + m.bestMove;
+        return (
+          '<div class="cc-move-row">' +
+            '<div class="cc-move-num">' + m.moveNumber + (m.color === "white" ? "." : "...") + '</div>' +
+            '<div class="cc-move-san">' + escapeHtml(m.san) + '</div>' +
+            '<div class="cc-move-comment ' + tagClass + '">' + comment + '</div>' +
+            '<div class="cc-move-cploss ' + tagClass + '">-' + m.cpLoss + 'cp</div>' +
+          '</div>'
+        );
+      }).join("");
+    }
+
+    return (
+      '<div class="cc-game-card">' +
+        '<div class="cc-game-head" data-game-idx="' + idx + '">' +
+          '<div>' +
+            '<div class="cc-game-title">' + escapeHtml(g.meta.label) + '</div>' +
+            '<div class="cc-game-meta">' + escapeHtml(g.meta.opponentLabel) + ' &middot; ' + escapeHtml(g.meta.timeClass) + ' &middot; ' + escapeHtml(g.meta.ecoName || "Unknown opening") + '</div>' +
+          '</div>' +
+          '<div class="cc-game-result-badge ' + resultClass + '">' + resultText + '</div>' +
+        '</div>' +
+        '<div class="cc-game-body" id="cc-game-body-' + idx + '">' + rowsHtml + '</div>' +
+      '</div>'
+    );
+  }
+
+  function attachGameCardToggles() {
+    Array.prototype.forEach.call(resultsZone.querySelectorAll(".cc-game-head"), function (head) {
+      head.addEventListener("click", function () {
+        var idx = head.getAttribute("data-game-idx");
+        var body = $("cc-game-body-" + idx);
+        if (body) body.classList.toggle("cc-open");
+      });
+    });
+  }
+
+  function renderResults(games, agg, username) {
+    var notes = generateCoachingNotes(agg, games.length);
+    var html = "";
+
+    html += '<h2 class="cc-section-title"><span class="cc-section-num">01</span><span class="cc-display">Summary</span></h2><hr class="cc-section-rule" />';
+    html += renderStatGrid(agg);
+
+    html += '<h2 class="cc-section-title"><span class="cc-section-num">02</span><span class="cc-display">Where it breaks down</span></h2><hr class="cc-section-rule" />';
+    html += renderPhaseChart(agg);
+
+    html += '<h2 class="cc-section-title"><span class="cc-section-num">03</span><span class="cc-display">Coaching notes</span></h2><hr class="cc-section-rule" />';
+    html += '<div style="margin-bottom: 36px;">' + renderCoachingNotes(notes) + '</div>';
+
+    html += '<h2 class="cc-section-title"><span class="cc-section-num">04</span><span class="cc-display">Game-by-game scoresheet</span></h2><hr class="cc-section-rule" />';
+    html += '<div style="font-size:13px; color:var(--warm-gray); margin-bottom:16px;">Click a game to expand flagged moves.</div>';
+    html += games.map(function (g, idx) { return renderGameCard(g, idx); }).join("");
+
+    resultsZone.innerHTML = html;
+    attachGameCardToggles();
+  }
+
+  /* ============================================================
+     RESULT MAPPING (chess.com game object -> our meta format)
+     ============================================================ */
+  // Chess.com's PGN text reliably includes [ECO "C50"] and
+  // [ECOUrl "https://.../Italian-Game-..."] header tags - these are a
+  // more precise source for opening identity/name than the top-level
+  // JSON "eco" field, which is just a URL with no separate bare code.
+  function extractPgnHeader(pgn, tag) {
+    var re = new RegExp("\\[" + tag + " \"([^\"]*)\"\\]");
+    var m = pgn.match(re);
+    return m ? m[1] : null;
+  }
+
+  function ecoNameFromUrl(url) {
+    if (!url) return null;
+    var slug = url.split("?")[0].split("#")[0].replace(/\/+$/, "").split("/").pop();
+    if (!slug) return null;
+    try {
+      slug = decodeURIComponent(slug);
+    } catch (e) { /* leave as-is if decoding fails */ }
+    return slug.replace(/-/g, " ");
+  }
+
+  function buildGameMeta(game, perspectiveUsernameLower) {
+    var whiteName = (game.white && game.white.username) ? game.white.username : "White";
+    var blackName = (game.black && game.black.username) ? game.black.username : "Black";
+    var isWhite = whiteName.toLowerCase() === perspectiveUsernameLower;
+    var perspectiveColor = isWhite ? "white" : "black";
+    var opponentName = isWhite ? blackName : whiteName;
+    var myResultRaw = isWhite ? (game.white ? game.white.result : "") : (game.black ? game.black.result : "");
+
+    var result;
+    if (myResultRaw === "win") result = "win";
+    else if (myResultRaw === "agreed" || myResultRaw === "repetition" || myResultRaw === "stalemate" ||
+             myResultRaw === "insufficient" || myResultRaw === "50move" || myResultRaw === "timevsinsufficient") {
+      result = "draw";
+    } else {
+      result = "loss";
+    }
+
+    var dateLabel = "";
+    if (game.end_time) {
+      var d = new Date(game.end_time * 1000);
+      dateLabel = d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    // Prefer the PGN's own ECO header (a clean code like "C50") as the
+    // grouping key, falling back to the JSON eco URL's slug if the PGN
+    // is missing the tag for some reason. The display name always
+    // prefers the human-readable ECOUrl slug, then the JSON eco URL.
+    var pgnEco = game.pgn ? extractPgnHeader(game.pgn, "ECO") : null;
+    var pgnEcoUrl = game.pgn ? extractPgnHeader(game.pgn, "ECOUrl") : null;
+    var ecoCode = pgnEco || ecoNameFromUrl(game.eco) || null;
+    var ecoDisplayName = ecoNameFromUrl(pgnEcoUrl) || ecoNameFromUrl(game.eco) || null;
+
+    return {
+      url: game.url,
+      label: (isWhite ? "White" : "Black") + " vs " + opponentName + (dateLabel ? " — " + dateLabel : ""),
+      opponentLabel: "vs " + opponentName + (isWhite ? "" : "") + (game.white && game.black ? " (" +
+        (isWhite ? game.white.rating : game.black.rating) + " vs " + (isWhite ? game.black.rating : game.white.rating) + ")" : ""),
+      timeClass: game.time_class || "unknown",
+      eco: ecoCode,
+      ecoName: ecoDisplayName,
+      result: result,
+      perspectiveColor: perspectiveColor
+    };
+  }
+
+  /* ============================================================
+     MAIN RUN HANDLER
+     ============================================================ */
+  function setRunning(isRunning) {
+    state.running = isRunning;
+    runBtn.disabled = isRunning;
+    runBtn.textContent = isRunning ? "Reviewing…" : "Review games";
+  }
+
+  function getSelectedTimeClasses() {
+    return TIME_CLASSES.filter(function (tc) { return state.selectedTimeClasses[tc.key]; }).map(function (tc) { return tc.key; });
+  }
+
+  function runReview() {
+    var username = usernameInput.value.trim();
+    clearBanner();
+    resultsZone.innerHTML = "";
+
+    if (!username) {
+      showBanner("Enter a chess.com username to review.");
+      return;
+    }
+    var selectedTC = getSelectedTimeClasses();
+    if (selectedTC.length === 0) {
+      showBanner("Pick at least one time control to include.");
+      return;
+    }
+
+    var monthVal = monthSelect.value.split("-");
+    var year = parseInt(monthVal[0], 10);
+    var month = parseInt(monthVal[1], 10);
+    var depth = state.depth;
+    var usernameLower = username.toLowerCase();
+
+    state.cancelRequested = false;
+    setRunning(true);
+    showProgress("Checking username…", 2);
+
+    var engine = new ChessEngine();
+
+    verifyUsernameExists(username)
+      .then(function (exists) {
+        if (!exists) {
+          throw new Error("NO_SUCH_USER");
+        }
+        showProgress("Starting chess engine…", 6);
+        return engine.init();
+      })
+      .catch(function (err) {
+        if (err && err.message === "NO_SUCH_USER") throw err;
+        // Engine failed to start - this is a hard stop for this tool,
+        // since meaningful analysis requires it. Surface clearly rather
+        // than silently producing empty results.
+        throw new Error("ENGINE_FAILED");
+      })
+      .then(function () {
+        showProgress("Fetching games for " + monthSelect.options[monthSelect.selectedIndex].text + "…", 10);
+        return fetchMonthGames(username, year, month);
+      })
+      .then(function (data) {
+        var allGames = data.games || [];
+        var filtered = allGames.filter(function (g) {
+          return selectedTC.indexOf(g.time_class) !== -1 && g.pgn;
+        });
+
+        if (filtered.length === 0) {
+          throw new Error("NO_GAMES");
+        }
+
+        if (filtered.length > MAX_GAMES_HARD_CAP) {
+          filtered = filtered.slice(filtered.length - MAX_GAMES_HARD_CAP);
+        }
+
+        var totalGames = filtered.length;
+        var gamesDone = 0;
+        var results = [];
+
+        function processNext(i) {
+          if (state.cancelRequested) {
+            var cancelErr = new Error("CANCELLED");
+            cancelErr.partialResults = results;
+            throw cancelErr;
+          }
+          if (i >= filtered.length) {
+            return Promise.resolve(results);
+          }
+          var game = filtered[i];
+          var meta = buildGameMeta(game, usernameLower);
+
+          var basePct = 10 + (gamesDone / totalGames) * 85;
+          showProgress(
+            "Analyzing game " + (gamesDone + 1) + " of " + totalGames + "…",
+            basePct,
+            meta.label
+          );
+
+          return analyzeGame(game.pgn, engine, depth, usernameLower, function (doneCount, totalCount) {
+            // Per-ply tick: advance the progress bar smoothly through this
+            // game's slice as each position is evaluated, rather than
+            // jumping once and then sitting still until the game finishes.
+            var gameSliceWidth = (1 / totalGames) * 85;
+            var withinGameFraction = totalCount > 0 ? doneCount / totalCount : 0;
+            var pct = basePct + gameSliceWidth * withinGameFraction;
+            showProgress(
+              "Analyzing game " + (gamesDone + 1) + " of " + totalGames + "…",
+              Math.min(pct, 10 + ((gamesDone + 1) / totalGames) * 85),
+              meta.label + " — move " + doneCount + " of " + totalCount
+            );
+          }).then(function (annotated) {
+            gamesDone++;
+            if (annotated) {
+              results.push({ meta: meta, annotated: annotated, perspectiveColor: meta.perspectiveColor });
+            }
+            return processNext(i + 1);
+          }, function (analyzeErr) {
+            // The engine crashed mid-game. Don't throw away whatever
+            // games were already fully analyzed - surface those as a
+            // partial result rather than discarding everything.
+            var wrapped = new Error("ENGINE_CRASHED");
+            wrapped.partialResults = results;
+            throw wrapped;
+          });
+        }
+
+        return processNext(0);
+      })
+      .then(function (results) {
+        engine.terminate();
+        setRunning(false);
+        clearProgress();
+
+        if (!results || results.length === 0) {
+          showBanner("None of the games in this month could be parsed for analysis.");
+          return;
+        }
+
+        var agg = aggregateResults(results);
+        clearBanner();
+        renderResults(results, agg, username);
+      })
+      .catch(function (err) {
+        engine.terminate();
+        setRunning(false);
+        clearProgress();
+
+        var msg = err && err.message;
+        var partial = err && err.partialResults;
+
+        if (msg === "NO_SUCH_USER") {
+          showBanner("No chess.com account found for \"" + escapeHtml(username) + "\". Check the spelling and try again.");
+        } else if (msg === "NO_GAMES") {
+          showBanner("No games matching the selected time control" + (selectedTC.length > 1 ? "s" : "") +
+            " were found for " + escapeHtml(username) + " in " + monthSelect.options[monthSelect.selectedIndex].text +
+            ". Try a different month or time control.");
+        } else if (msg === "CANCELLED") {
+          if (partial && partial.length > 0) {
+            showBanner("Review cancelled. Showing results for the " + partial.length + " game" + (partial.length === 1 ? "" : "s") + " analyzed before cancelling.", "info");
+            renderResults(partial, aggregateResults(partial), username);
+          } else {
+            showBanner("Review cancelled.", "info");
+          }
+        } else if (msg === "ENGINE_FAILED") {
+          showBanner("The chess engine couldn't start in this browser environment, so analysis can't run right now. " +
+            "This can happen if Web Workers are blocked here. Try reloading, or opening this artifact in a new tab if your client supports that.");
+        } else if (msg === "ENGINE_CRASHED") {
+          if (partial && partial.length > 0) {
+            showBanner("The chess engine stopped responding partway through. Showing results for the " + partial.length +
+              " game" + (partial.length === 1 ? "" : "s") + " that finished analyzing before that happened. Try again, perhaps with a lower depth, to review the rest.");
+            renderResults(partial, aggregateResults(partial), username);
+          } else {
+            showBanner("The chess engine stopped responding before any games could be analyzed. Try reloading and running the review again, perhaps at a lower depth.");
+          }
+        } else {
+          showBanner("Something went wrong fetching or analyzing games" + (msg ? (": " + escapeHtml(msg)) : "") + ". Please try again.");
+        }
+      });
+  }
+
+  runBtn.addEventListener("click", runReview);
+  usernameInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") runReview();
+  });
+
+})();
+</script>
